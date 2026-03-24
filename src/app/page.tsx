@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { 
   Github, Mail, ExternalLink, Moon, Sun, 
   Music, PawPrint, Cpu, Code2, 
-  MessageSquare, Wrench, Briefcase, Plus,
+  Wrench, Briefcase, Plus,
   Phone, MapPin, Facebook, Download, Layers3
 } from 'lucide-react';
 
@@ -24,7 +24,6 @@ export default function Home() {
   const [text, setText] = useState('');
   const fullText = "Hi, I am Rhandell Cangayo";
 
-  // Typewriter Logic
   useEffect(() => {
     setMounted(true);
     const timer = setTimeout(() => setLoading(false), 1500);
@@ -78,9 +77,11 @@ export default function Home() {
       </nav>
 
       {/* --- SECTION 1: HERO --- */}
-      <section id="home" className="h-screen w-full snap-start flex items-center justify-center p-6 pt-20">
+      {/* Pinalitan ang h-screen ng min-h-screen at nilagyan ng responsive py-24 */}
+      <section id="home" className="min-h-screen lg:h-screen w-full snap-start flex items-center justify-center p-6 pt-24 pb-12">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-7 space-y-8">
+          
+          <div className="order-2 lg:order-1 lg:col-span-7 space-y-8">
             {loading ? (
               <div className="space-y-4">
                 <Skeleton className="h-6 w-48" />
@@ -93,21 +94,21 @@ export default function Home() {
                   <p className="text-blue-600 font-mono text-sm font-bold tracking-[0.3em] uppercase min-h-[20px]">
                     {text}<span className="animate-pulse">|</span>
                   </p>
-                  <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] uppercase">
+                  <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1] lg:leading-[0.9] uppercase">
                     WEB & SYSTEM <br />
                     <span className="text-zinc-300 dark:text-zinc-800">Developer.</span>
                   </h1>
                 </div>
                 
-                <p className="text-zinc-500 dark:text-zinc-400 text-lg max-w-2xl leading-relaxed font-medium">
+                <p className="text-zinc-500 dark:text-zinc-400 text-base md:text-lg max-w-2xl leading-relaxed font-medium">
                   4th Year IT Student at <span className="text-foreground font-bold underline decoration-blue-500 underline-offset-4">PDM</span>. Dedicated to crafting seamless user experiences through robust backend logic and optimized hardware infrastructure.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
-                  <button className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
+                  <button className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95 transition-all w-full sm:w-auto justify-center">
                     Download CV <Download size={16} />
                   </button>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-start">
                     <a href="https://github.com/RhandellCangayo" target="_blank" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Github size={20} /></a>
                     <a href="mailto:cangayorhandell15@gmail.com" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Mail size={20} /></a>
                   </div>
@@ -116,20 +117,19 @@ export default function Home() {
             )}
           </div>
           
-          {/* Tilted & Larger Profile Image Container */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+          {/* Nilipat sa order-1 para sa mobile (Picture muna bago text sa phone) */}
+          <div className="order-1 lg:order-2 lg:col-span-5 relative flex justify-center lg:justify-end">
             {loading ? (
-              <Skeleton className="aspect-[3/4] rounded-[3.5rem] w-full" />
+              <Skeleton className="aspect-[3/4] rounded-[3.5rem] w-full max-w-[350px] lg:max-w-[450px]" />
             ) : (
-              <div className="relative group w-full max-w-[450px]">
+              <div className="relative group w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[450px]">
                 <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600 to-emerald-500 rounded-[4rem] blur-2xl opacity-10 group-hover:opacity-20 transition duration-700"></div>
-                {/* rotate-3 adds the tilt, aspect-[3/4] makes it larger vertically */}
                 <div className="relative aspect-[3/4] rounded-[3.5rem] bg-zinc-900 border-4 border-white/5 overflow-hidden shadow-2xl transition-all duration-500 group-hover:rotate-0 rotate-3 group-hover:scale-[1.02]">
-                    <img 
-                      src={theme === 'dark' ? '/imag/school.jpg' : '/imag/me2.jpg'} 
-                      alt="Profile"
-                      className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110"
-                    />
+                  <img 
+                    src={theme === 'dark' ? '/imag/school.jpg' : '/imag/me2.jpg'} 
+                    alt="Profile"
+                    className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110"
+                  />
                 </div>
               </div>
             )}
@@ -138,14 +138,14 @@ export default function Home() {
       </section>
 
       {/* --- SECTION 2: ABOUT & CONTACT HUB --- */}
-      <section id="about" className="h-screen w-full snap-start flex items-center justify-center p-6 bg-zinc-50/50 dark:bg-zinc-950/50">
+      <section id="about" className="min-h-screen lg:h-screen w-full snap-start flex items-center justify-center p-6 py-24 bg-zinc-50/50 dark:bg-zinc-950/50">
         <div className="max-w-7xl w-full flex flex-col gap-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Internship Card */}
             <div className="lg:col-span-4 h-full">
-              {loading ? <Skeleton className="h-full min-h-[350px] rounded-[2.5rem]" /> : (
-                <div className="h-full p-8 rounded-[2.5rem] bg-zinc-900 text-white border border-white/5 h-full flex flex-col justify-between shadow-xl relative overflow-hidden group">
+              {loading ? <Skeleton className="h-[350px] rounded-[2.5rem]" /> : (
+                <div className="p-8 rounded-[2.5rem] bg-zinc-900 text-white border border-white/5 h-full flex flex-col justify-between shadow-xl relative overflow-hidden group min-h-[350px]">
                   <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700 text-blue-500">
                     <Briefcase size={200} />
                   </div>
@@ -155,7 +155,7 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black text-blue-400 uppercase tracking-widest">Internship Status</h3>
-                      <p className="text-3xl font-bold mt-1 leading-tight">Goodyear Container Corp</p>
+                      <p className="text-2xl md:text-3xl font-bold mt-1 leading-tight">Goodyear Container Corp</p>
                       <p className="text-zinc-400 font-medium italic text-sm">System Developer</p>
                     </div>
                     <p className="text-sm text-zinc-400 leading-relaxed">
@@ -176,10 +176,10 @@ export default function Home() {
             {/* Profile Dashboard Card */}
             <div className="lg:col-span-8">
               {loading ? <Skeleton className="h-full min-h-[350px] rounded-[2.5rem]" /> : (
-                <div className="p-10 rounded-[2.5rem] bg-zinc-900 text-white border border-white/5 h-full flex flex-col justify-center space-y-8 shadow-xl hover:border-blue-500/50 transition-all duration-500">
+                <div className="p-8 md:p-10 rounded-[2.5rem] bg-zinc-900 text-white border border-white/5 h-full flex flex-col justify-center space-y-8 shadow-xl hover:border-blue-500/50 transition-all duration-500">
                   <div className="space-y-3">
-                    <h2 className="text-4xl font-black tracking-tighter uppercase">Professional Profile</h2>
-                    <p className="text-zinc-400 text-lg leading-relaxed font-medium">
+                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">Professional Profile</h2>
+                    <p className="text-zinc-400 text-base md:text-lg leading-relaxed font-medium">
                       As a 4th-year IT student at <span className="text-white font-bold underline decoration-blue-500 underline-offset-4">Pambayang Dalubhasaan ng Marilao (PDM)</span>, I'm focused on balancing complex Web & System Development, IOT and Hardware Maintenance, ensuring solving real-world problems.
                     </p>
                   </div>
@@ -234,8 +234,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Contact Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Contact Bar - Mag-a-adjust sa Mobile mula 1 column hanggang 4 columns sa PC */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <a href="mailto:cangayorhandell15@gmail.com" className="p-6 rounded-[2rem] bg-zinc-900 text-white border border-white/5 hover:border-orange-500 transition-all group shadow-lg">
               <Mail className="text-orange-500 mb-2" size={20} />
               <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Email</p>
@@ -261,23 +261,23 @@ export default function Home() {
       </section>
 
       {/* --- SECTION 3: PORTFOLIO --- */}
-      <section id="portfolio" className="h-screen w-full snap-start flex items-center justify-center p-6">
+      <section id="portfolio" className="min-h-screen lg:h-screen w-full snap-start flex items-center justify-center p-6 py-24">
         <div className="max-w-7xl w-full space-y-8">
           <div>
-            <h2 className="text-5xl font-black tracking-tight uppercase">Technical Projects</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight uppercase">Technical Projects</h2>
             <p className="text-zinc-500 font-medium">Built for performance and utility.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-7 p-1 rounded-[2.5rem] bg-gradient-to-b from-border to-transparent hover:from-blue-500 transition-all duration-500 group">
-              <div className="bg-card rounded-[2.4rem] p-10 h-full flex flex-col justify-between relative overflow-hidden border border-border">
+              <div className="bg-card rounded-[2.4rem] p-8 md:p-10 h-full flex flex-col justify-between relative overflow-hidden border border-border min-h-[300px]">
                 <div className="relative z-10 space-y-6">
                   <PawPrint className="text-blue-500 group-hover:scale-110 transition-transform" size={40} />
                   <div>
-                    <h3 className="text-3xl font-bold tracking-tight uppercase">SheltCare System</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">SheltCare System</h3>
                     <p className="text-zinc-500 mt-2 text-sm max-w-sm leading-relaxed">Comprehensive pet shelter management with environmental monitoring.</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {['PHP', 'MySQL', 'ESP32'].map(t => (
                       <span key={t} className="px-3 py-1 bg-background rounded-lg text-[10px] font-black border border-border uppercase">{t}</span>
                     ))}
@@ -290,14 +290,14 @@ export default function Home() {
             </div>
 
             <div className="md:col-span-5 p-1 rounded-[2.5rem] bg-gradient-to-b from-border to-transparent hover:from-emerald-500 transition-all duration-500 group">
-              <div className="bg-card rounded-[2.4rem] p-10 h-full flex flex-col justify-between border border-border">
+              <div className="bg-card rounded-[2.4rem] p-8 md:p-10 h-full flex flex-col justify-between border border-border min-h-[300px]">
                 <div className="space-y-6">
                   <Music className="text-emerald-500 group-hover:scale-110 transition-transform" size={40} />
                   <div>
-                    <h3 className="text-3xl font-bold tracking-tight uppercase">Musiciana</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">Musiciana</h3>
                     <p className="text-zinc-500 mt-2 text-sm leading-relaxed">Cloud-based music streaming engine.</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {['Supabase', 'React', 'Firebase'].map(t => (
                       <span key={t} className="px-3 py-1 bg-background rounded-lg text-[10px] font-black border border-border uppercase">{t}</span>
                     ))}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Bot, X, Send } from 'lucide-react';
@@ -9,7 +9,18 @@ import { Bot, X, Send } from 'lucide-react';
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [botGreeting, setBotGreeting] = useState('');
+  const bubbleSequence = useMemo(() => ['Hi...', 'I’m RCDC...', 'Do you need something?'], []);
+  const [bubbleIndex, setBubbleIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const botGreetings = [
+    'Hi, I’m RCDC 🤖 How may I help you today?',
+    'Hello from RCDC AI! I’m here to make your day better, ask me anything.',
+    'Hey there! I’m RCDC, your friendly robot guide—ready to assist with cool ideas.',
+    'Hi, I’m RCDC! Need help or a positive thought? I’ve got your back.',
+    'Greetings! RCDC AI here—let’s build something awesome together.'
+  ];
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
@@ -22,6 +33,25 @@ export default function Chatbot() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => {
+        setBubbleIndex((prev) => (prev + 1) % bubbleSequence.length);
+      }, 2200);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [bubbleIndex, isOpen, bubbleSequence.length]);
+
+  // Set a random greeting when the chat opens
+  const openChat = () => {
+    if (!isOpen) {
+      const randomGreeting = botGreetings[Math.floor(Math.random() * botGreetings.length)];
+      setBotGreeting(randomGreeting);
+      setBubbleIndex(0); // reset speech cycle when opening
+    }
+    setIsOpen((prev) => !prev);
+  };
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
@@ -49,9 +79,22 @@ export default function Chatbot() {
               </div>
             )}
             {messages.length === 0 && (
-              <div className="text-center py-10 space-y-2">
-                <Bot className="mx-auto text-zinc-300" size={32} />
-                <p className="text-xs text-zinc-500 font-medium">How can I help you today?</p>
+              <div className="text-center py-8 space-y-3">
+                <img
+                  src="gif/RCDC.gif"
+                  alt="RCDC robot"
+                  className="mx-auto h-20 w-20 rounded-full border-2 border-blue-500"
+                />
+                <p className="font-bold text-sm text-blue-600 dark:text-blue-300">{botGreeting || 'Hi, I’m RCDC AI! Ready when you are.'}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Ask me anything about projects, tips, or RCDC services.</p>
+              </div>
+            )}
+
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[60%] rounded-2xl px-4 py-2 text-sm bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700 animate-pulse">
+                  ...
+                </div>
               </div>
             )}
             
@@ -110,14 +153,29 @@ export default function Chatbot() {
         </div>
       )}
 
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-4 bg-blue-600 text-white rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 group border-2 border-white/10"
-      >
-        {isOpen ? <X size={24} /> : <Bot size={24} className="group-hover:rotate-12 transition-transform" />}
-        {!isOpen && <span className="font-black text-xs uppercase tracking-widest pr-1">Chat with RCDC AI</span>}
-      </button>
+      {/* Toggle Robot Bubble */}
+      <div className="relative flex flex-col items-center">
+        {!isOpen && (
+          <div className="absolute -top-12 right-0 translate-x-[-10%] w-max max-w-[180px] text-center px-2 py-1 rounded-xl bg-blue-600 text-white text-[11px] font-semibold shadow-lg overflow-hidden text-ellipsis whitespace-nowrap">
+            {bubbleSequence[bubbleIndex]}
+          </div>
+        )}
+
+        <button
+          onClick={openChat}
+          className="relative overflow-hidden h-16 w-16 bg-transparent rounded-full p-0 border-none shadow-xl hover:scale-110 active:scale-95 transition-transform"
+          aria-label={isOpen ? 'Close RCDC chat' : 'Open RCDC chat'}
+        >
+          <img
+            src="/gif/RCDC.gif"
+            alt="RCDC robot"
+            className="h-full w-full rounded-full"
+          />
+          {isOpen && (
+            <span className="absolute inset-0 bg-black/40 text-xs text-white flex items-center justify-center font-bold">Close</span>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
