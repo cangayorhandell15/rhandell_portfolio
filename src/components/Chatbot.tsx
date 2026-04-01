@@ -81,7 +81,7 @@ export default function Chatbot() {
             {messages.length === 0 && (
               <div className="text-center py-8 space-y-3">
                 <img
-                  src="gif/RCDC.gif"
+                  src="/gif/RCDC.gif"
                   alt="RCDC robot"
                   className="mx-auto h-20 w-20 rounded-full border-2 border-blue-500"
                 />
