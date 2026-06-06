@@ -5,32 +5,178 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --glass: var(--glass);
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
-  --card: #f4f4f5;
-  --border: #e4e4e7;
+  --background: #f3f6fb;
+  --foreground: #071126;
+  --card: rgba(255,255,255,0.92);
+  --border: rgba(15,23,42,0.08);
+  --accent: #0ea5e9;
+  --accent-2: #6366f1;
+  --glass: rgba(255,255,255,0.82);
+  --muted: rgba(7,17,38,0.68);
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --border: #27272a;
+  --background: radial-gradient(circle at 10% 10%, #071223 0%, #02030a 45%, #000000 100%);
+  --foreground: #e6eef8;
+  --card: rgba(10,12,16,0.75);
+  --border: rgba(255,255,255,0.04);
+  --accent: #00e5ff;
+  --accent-2: #9b7cff;
+  --glass: rgba(8,10,14,0.5);
+  --muted: rgba(230,238,248,0.72);
 }
 
+/* Base body styling */
 body {
-  background-color: var(--background);
+  background: var(--background);
   color: var(--foreground);
-  transition: background-color 0.4s ease, color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.5s ease, color 0.4s ease;
 }
 
-/* Bento Card Helper */
-.bento-card {
-  background-color: var(--card);
+/* Glassmorphism container */
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
   border: 1px solid var(--border);
-  border-radius: 2.5rem;
-  transition: all 0.3s ease;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+  border-radius: 1.25rem;
 }
+
+/* Modern card helper (replaces bento-card) */
+.bento-card {
+  background: var(--card) !important;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 1rem;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(2,6,23,0.12), 0 0 18px var(--accent)/8;
+}
+
+/* Neon accent outlines for subtle futurism */
+.neon-outline {
+  box-shadow: 0 0 20px rgba(0,229,255,0.07), inset 0 0 8px rgba(124,92,255,0.03);
+  border-radius: 1rem;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #ffffff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 30px var(--accent)/12;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.btn-primary:active { transform: translateY(1px) scale(0.995); }
+
+/* Small utility for subtle borders and glass buttons */
+.glass-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 0.5rem;
+  border-radius: 0.9rem;
+  backdrop-filter: blur(8px);
+}
+
+/* Accent text */
+.accent-text { color: var(--accent); }
+.accent-text-2 { color: var(--accent-2); }
+.text-muted { color: var(--muted) !important; }
+
+/* Image profile framing */
+.profile-frame {
+  border-radius: 3.5rem;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Utility for subtle radial highlights used across hero and sections */
+.radial-highlight {
+  background: radial-gradient(600px 300px at 10% 10%, rgba(0,229,255,0.06), transparent 20%), radial-gradient(500px 220px at 90% 30%, rgba(124,92,255,0.04), transparent 25%);
+}
+
+/* Headings and small text tweaks */
+h1,h2,h3,h4 { letter-spacing: -0.01em; }
+
+/* Responsive and accessible tweaks */
+img { display: block; max-width: 100%; }
+
+/* Keep previous dark/light friendly helper classes for tailwind usage */
+.bg-background { background: var(--background) !important; }
+.text-foreground { color: var(--foreground) !important; }
+.border-border { border-color: var(--border) !important; }
+
+/* Small helpers for existing components */
+.hover-neon:hover { box-shadow: 0 10px 30px rgba(0,229,255,0.06), 0 0 24px var(--accent)/10; }
+
+/* Improve readability for project URLs and bento-card text in light/dark modes */
+.bento-card { color: var(--foreground); }
+.project-url {
+  color: rgba(7,17,38,0.88);
+  font-weight: 600;
+  text-decoration: none;
+}
+.project-url:hover { text-decoration: underline; opacity: 0.95; }
+.dark .project-url { color: rgba(230,238,248,0.9); }
+
+/* Force higher contrast inside bento cards to avoid muted text on dark/light overlays */
+.bento-card .rounded-3xl,
+.bento-card .rounded-3xl * {
+  color: var(--foreground) !important;
+}
+
+/* If a component explicitly uses `text-muted` inside an overlay, prefer white for readability */
+.bento-card .text-muted {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Reduce heavy backdrop flicker by removing blur transitions on hover for dense cards */
+.bento-card .rounded-3xl,
+.bento-card .rounded-3xl img {
+  transition: transform 0.35s ease, box-shadow 0.35s ease !important;
+  backface-visibility: hidden;
+}
+
+/* Theme-aware image styles: images visibly change when toggling dark/light */
+.profile-frame img,
+.group .object-cover,
+.rounded-[2.5rem] > img,
+.aspect-[3/4] > img {
+  transition: filter 300ms ease, transform 300ms ease, opacity 300ms ease;
+  filter: none;
+}
+
+.dark .profile-frame img,
+.dark .group .object-cover,
+.dark .rounded-[2.5rem] > img,
+.dark .aspect-[3/4] > img {
+  filter: brightness(0.52) saturate(0.7) contrast(0.9) grayscale(0.02);
+}
+
+/* Slight lift on hover in light mode, but keep subdued in dark to avoid flicker */
+.group:hover .object-cover { transform: scale(1.03); }
+.dark .group:hover .object-cover { transform: scale(1.01); }

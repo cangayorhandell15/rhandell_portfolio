@@ -54,7 +54,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-20 flex flex-col items-end">
       {isOpen && (
         <div className="mb-4 w-80 md:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] animate-in slide-in-from-bottom-4 duration-300">
           
@@ -64,9 +64,9 @@ export default function Chatbot() {
               <div className="p-1.5 bg-blue-600 rounded-lg text-white">
                 <Bot size={18} />
               </div>
-              <p className="text-sm font-bold dark:text-white text-zinc-900 uppercase tracking-tight">RCDC AI</p>
+              <p className="text-sm font-bold text-foreground uppercase tracking-tight">RCDC AI</p>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-zinc-600 transition-colors">
+            <button onClick={() => setIsOpen(false)} className="text-muted hover:text-foreground transition-colors">
               <X size={20} />
             </button>
           </div>
@@ -86,7 +86,7 @@ export default function Chatbot() {
                   className="mx-auto h-20 w-20 rounded-full border-2 border-blue-500"
                 />
                 <p className="font-bold text-sm text-blue-600 dark:text-blue-300">{botGreeting || 'Hi, I’m RCDC AI! Ready when you are.'}</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Ask me anything about projects, tips, or RCDC services.</p>
+                <p className="text-xs text-muted font-medium">Ask me anything about projects, tips, or RCDC services.</p>
               </div>
             )}
 
@@ -109,7 +109,7 @@ export default function Chatbot() {
                   <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
                     m.role === 'user' 
                       ? 'bg-blue-600 text-white rounded-tr-none' 
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-none border border-zinc-200 dark:border-zinc-700'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-foreground dark:text-white rounded-tl-none border border-zinc-200 dark:border-zinc-700'
                   }`}>
                     {textContent}
                   </div>
@@ -136,7 +136,7 @@ export default function Chatbot() {
           >
             <div className="relative flex items-center">
               <input
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2.5 text-sm outline-none text-zinc-900 dark:text-white focus:ring-1 ring-blue-500/50 transition-all"
+                className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2.5 text-sm outline-none text-foreground focus:ring-1 ring-blue-500/50 transition-all"
                 value={input}
                 placeholder="Ask something about Rhandell..."
                 onChange={(e) => setInput(e.target.value)}
