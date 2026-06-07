@@ -164,16 +164,19 @@ img { display: block; max-width: 100%; }
 /* Theme-aware image styles: images visibly change when toggling dark/light */
 .profile-frame img,
 .group .object-cover,
-.rounded-[2.5rem] > img,
-.aspect-[3/4] > img {
+.rounded-\[2\.5rem\] > img,
+.aspect-\[3\/4\] > img {
   transition: filter 300ms ease, transform 300ms ease, opacity 300ms ease;
   filter: none;
 }
 
-.dark .profile-frame img,
+.dark .profile-frame img {
+  filter: none !important;
+}
+
 .dark .group .object-cover,
-.dark .rounded-[2.5rem] > img,
-.dark .aspect-[3/4] > img {
+.dark .rounded-\[2\.5rem\] > img,
+.dark .aspect-\[3\/4\] > img {
   filter: brightness(0.52) saturate(0.7) contrast(0.9) grayscale(0.02);
 }
 

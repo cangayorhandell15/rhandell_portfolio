@@ -71,7 +71,7 @@ export default function LiveDashboard() {
     },
     {
       name: 'Musiciana',
-      status: 'Under development',
+      status: 'development',
       note: 'Under development — preview coming soon',
     },
     {
