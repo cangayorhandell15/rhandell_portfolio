@@ -54,9 +54,9 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-20 flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-20 flex flex-col items-end">
       {isOpen && (
-        <div className="mb-4 w-80 md:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] animate-in slide-in-from-bottom-4 duration-300">
+        <div className="mb-4 w-80 md:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[460px] sm:h-[500px] animate-in slide-in-from-bottom-4 duration-300">
           
           {/* Header */}
           <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
@@ -156,7 +156,7 @@ export default function Chatbot() {
       {/* Toggle Robot Bubble */}
       <div className="relative flex flex-col items-center">
         {!isOpen && (
-          <div className="absolute -top-12 right-0 translate-x-[-10%] w-max max-w-[180px] text-center px-2 py-1 rounded-xl bg-blue-600 text-white text-[11px] font-semibold shadow-lg overflow-hidden text-ellipsis whitespace-nowrap">
+          <div className="hidden sm:block absolute -top-12 right-0 translate-x-[-10%] w-max max-w-[180px] text-center px-2 py-1 rounded-xl bg-blue-600 text-white text-[11px] font-semibold shadow-lg overflow-hidden text-ellipsis whitespace-nowrap">
             {bubbleSequence[bubbleIndex]}
           </div>
         )}

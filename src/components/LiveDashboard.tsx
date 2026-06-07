@@ -331,9 +331,9 @@ export default function LiveDashboard() {
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-      <div className="grid gap-6 md:grid-cols-2">
-        <section className="bento-card border-border p-6 shadow-2xl shadow-sky-500/10 backdrop-blur-xl ring-1 ring-white/10">
+    <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr] min-w-0">
+      <div className="grid gap-6 md:grid-cols-2 min-w-0">
+        <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-sky-500/10 backdrop-blur-xl ring-1 ring-white/10">
           <div className="flex items-center justify-between gap-3 mb-6">
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-blue-600/90">System Telemetry</p>
@@ -401,7 +401,7 @@ export default function LiveDashboard() {
           </div>
         </section>
 
-        <section className="bento-card border-border p-6 shadow-2xl shadow-fuchsia-500/10 backdrop-blur-xl ring-1 ring-white/10">
+        <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-fuchsia-500/10 backdrop-blur-xl ring-1 ring-white/10">
           <div className="flex items-center justify-between gap-3 mb-6">
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-violet-500/90">Project Network</p>
@@ -481,7 +481,7 @@ export default function LiveDashboard() {
         </section>
       </div>
 
-      <section className="bento-card border-border p-6 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl ring-1 ring-white/10">
+      <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl ring-1 ring-white/10">
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.35em] text-cyan-500/90">Live Weather</p>
@@ -500,7 +500,7 @@ export default function LiveDashboard() {
                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{weather?.city || 'Location unavailable'}</p>
                 <p className="mt-3 text-5xl font-black tracking-tight">{weather ? `${Math.round(weather.temperature)}°C` : 'Loading...'}</p>
               </div>
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-white/80 text-slate-900 shadow-lg shadow-slate-200/60 dark:bg-zinc-950/90 dark:text-white dark:shadow-black/20">
+              <div className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-white/80 text-slate-900 shadow-lg shadow-slate-200/60 dark:bg-zinc-950/90 dark:text-white dark:shadow-black/20">
                 {weatherIcon}
               </div>
             </div>

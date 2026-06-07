@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { 
-  Github, Mail, ExternalLink, Moon, Sun, Music, Download
+  Github, Mail, ExternalLink, Moon, Sun, Music, Download, Menu, X, ChevronDown
 } from 'lucide-react';
 import LiveDashboard from '@/components/LiveDashboard';
 import LoadingScreen from '@/components/loading';
@@ -20,12 +20,36 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
+  const [expandedCard, setExpandedCard] = useState<'shelcare' | 'musiciana' | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dashboardOpen, setDashboardOpen] = useState(true);
   const fullText = "Hi, I am Rhandell Cangayo";
 
   useEffect(() => {
     setMounted(true);
-    const timer = setTimeout(() => setLoading(false), 5500);
-    
+    const hasSeenLoading = sessionStorage.getItem('rcdcLoadingShown') === '1';
+
+    if (!hasSeenLoading) {
+      const timer = window.setTimeout(() => {
+        setLoading(false);
+        sessionStorage.setItem('rcdcLoadingShown', '1');
+      }, 8000);
+
+      const cleanupTimeout = () => window.clearTimeout(timer);
+      let i = 0;
+      const typing = setInterval(() => {
+        setText(fullText.slice(0, i));
+        i++;
+        if (i > fullText.length) clearInterval(typing);
+      }, 100);
+
+      return () => {
+        cleanupTimeout();
+        clearInterval(typing);
+      };
+    }
+
+    setLoading(false);
     let i = 0;
     const typing = setInterval(() => {
       setText(fullText.slice(0, i));
@@ -33,23 +57,20 @@ export default function Home() {
       if (i > fullText.length) clearInterval(typing);
     }, 100);
 
-    return () => {
-      clearTimeout(timer);
-      clearInterval(typing);
-    };
+    return () => clearInterval(typing);
   }, []);
 
   if (!mounted) return null;
 
   return (
     // Tinanggal ko yung snap-y snap-mandatory para mas natural yung scroll
-    <div className="min-h-screen bg-background text-foreground selection:bg-blue-500/30 scroll-smooth">
+    <div className="min-h-screen bg-background text-foreground selection:bg-blue-500/30 scroll-smooth overflow-x-hidden">
       {loading && <LoadingScreen />}
 
       {/* --- NAVIGATION --- */}
       <nav className="fixed top-0 w-full z-40 site-nav bg-background/50 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-          <a href="#home" className="flex items-center gap-3 group">
+          <a href="#home" className="flex items-center gap-3 group" onClick={() => setMobileMenuOpen(false)}>
             <img 
               src="/imag/logo1.jpg" 
               alt="RCDC Logo" 
@@ -58,9 +79,9 @@ export default function Home() {
             <span className="font-black text-xl tracking-tighter hidden sm:block uppercase">Rhandell's<span className="text-blue-600"> portfolio</span></span>
           </a>
 
-          {/* Adjusted gap and font weight para hindi "lonely" tignan yung dalawang nav links */}
-          <div className="flex items-center gap-10">
-            <div className="hidden md:flex gap-10 text-[11px] font-black tracking-[0.25em] text-muted">
+          {/* Desktop Navigation & Controls */}
+          <div className="hidden md:flex items-center gap-10">
+            <div className="flex gap-10 text-[11px] font-black tracking-[0.25em] text-muted">
               <a href="#home" className="hover:text-blue-600 transition-colors uppercase">Home</a>
               <a href="#portfolio" className="hover:text-blue-600 transition-colors uppercase">Portfolio</a>
             </div>
@@ -72,7 +93,45 @@ export default function Home() {
               {theme === 'dark' ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-blue-600" />}
             </button>
           </div>
+
+          {/* Mobile Controls */}
+          <div className="flex md:hidden items-center gap-3">
+            <button 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-xl border border-border glass-btn hover-neon transition-all shadow-sm"
+            >
+              {theme === 'dark' ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-blue-600" />}
+            </button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl border border-border glass-btn hover-neon transition-all shadow-sm"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-background border-t border-border backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-6 py-4 space-y-4 flex flex-col">
+              <a 
+                href="#home" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-bold tracking-[0.2em] text-muted hover:text-blue-600 transition-colors uppercase"
+              >
+                Home
+              </a>
+              <a 
+                href="#portfolio" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-bold tracking-[0.2em] text-muted hover:text-blue-600 transition-colors uppercase"
+              >
+                Portfolio
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
 
        {/* --- SECTION 1: HERO --- */}
@@ -147,15 +206,23 @@ export default function Home() {
                 Real time status of your device, my portfolio availability, and the latest weather updates.
               </p>
             </div>
-      
+            
+            {/* Mobile Dashboard Toggle */}
+            <button
+              onClick={() => setDashboardOpen(!dashboardOpen)}
+              className="md:hidden flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              {dashboardOpen ? 'Hide Dashboard' : 'Show Dashboard'}
+              <ChevronDown size={18} className={`transition-transform ${dashboardOpen ? '' : '-rotate-90'}`} />
+            </button>
           </div>
 
-          <LiveDashboard />
+          {dashboardOpen && <LiveDashboard />}
         </div>
       </section>
 
       {/* --- SECTION 3: PORTFOLIO --- */}
-<section id="portfolio" className="min-h-screen w-full flex items-center justify-center p-6 py-32 bg-white/90 dark:bg-transparent">
+<section id="portfolio" className="min-h-screen w-full flex items-center justify-center p-6 py-20 md:py-32 bg-white/90 dark:bg-transparent">
   <div className="max-w-7xl w-full space-y-16">
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-10">
       <div className="space-y-2">
@@ -180,45 +247,58 @@ export default function Home() {
         />
         
         {/* Capstone Badge */}
-        <div className="absolute top-6 left-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border z-10">
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border z-10">
             <span className="text-[10px] font-black uppercase tracking-tighter text-blue-600">Capstone Project • PDM • 2025 - 2026</span>
         </div>
 
         {/* Blurred Bottom Overlay (Text Container) */}
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/10 via-black/6 to-transparent dark:from-black/80 dark:via-black/60 backdrop-blur-md p-8 flex flex-col justify-end text-white">
-          <div className="space-y-4">
+        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/10 via-black/6 to-transparent dark:from-black/80 dark:via-black/60 backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
+          <div className="space-y-3">
             
-            {/* Title & Stacks */}
-            <div className="space-y-1.5">
-              <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">SheltCare System</h3>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {['PHP', 'MySQL', 'ESP32', 'IoT'].map(t => (
-                  <span key={t} className="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">
-                    {t}
-                  </span>
-                ))}
+            {/* Title & Stacks - Minimal on Mobile */}
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none">SheltCare</h3>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">PHP</span>
+                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">MySQL</span>
+                <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>ESP32</span>
+                <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>IoT</span>
               </div>
             </div>
 
-            {/* Description */}
-                <p className="text-white/90 text-sm leading-relaxed max-w-lg">
-              SHELTCARE is a web system featuring adoption, donation, visitation, and sponsorship functionalities. It integrates IoT sensors for temperature and humidity detection with automatic and manual humidifier controls, ensuring pets have a comfortable environment. Developed for Maxx's Furry Friends animal shelter.
+            {/* Description - Hidden on Mobile, Shown on Expand */}
+            <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg`}>
+              SHELTCARE web system for adoption, donation, visitation, and sponsorship with IoT sensor integration for temperature and humidity control.
             </p>
 
-            {/* Developers List - No Roles */}
-            <div className="pt-4 border-t border-white/10">
-            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/70 mb-1">Developed By:</p>
-            <div className="text-[11px] font-medium text-white/80 flex flex-wrap gap-x-3 gap-y-0.5">
-                    <span>Justine Karl B. Cortezano</span>
-                    <span>• Clarence S. Castro</span>
-                    <span>• Diana Rose G. Capellan</span>
-                    <span className="text-blue-400 font-bold">• Rhandell D. Cangayo</span>
+            {/* Developers List */}
+            <div className="pt-2 border-t border-white/10">
+              <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
+              {expandedCard === 'shelcare' ? (
+                <div className="text-[10px] sm:text-[10px] font-medium text-white/80 flex flex-wrap gap-1">
+                  <span>Justine Karl B.</span>
+                  <span>• Clarence S.</span>
+                  <span>• Diana Rose G.</span>
+                  <span className="text-blue-400 font-bold">• Rhandell D.</span>
                 </div>
+              ) : (
+                <div className="text-[10px] font-medium text-white/80">
+                  <span className="font-semibold">Rhandell D.</span>
+                  <span className="text-white/70"> +3 more</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setExpandedCard(expandedCard === 'shelcare' ? null : 'shelcare')}
+                className="mt-2 sm:hidden text-[9px] font-semibold uppercase tracking-[0.1em] text-blue-200"
+              >
+                {expandedCard === 'shelcare' ? '↑ Hide' : '↓ View all'}
+              </button>
             </div>
           </div>
           
           {/* External Link Hover */}
-          <a href="https://maxxfurryfriends.com/website/website_interface/MainPage.php" target="_blank" className="absolute top-4 right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+          <a href="https://maxxfurryfriends.com/website/website_interface/MainPage.php" target="_blank" className="absolute top-4 right-4 sm:right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
             <ExternalLink size={20} className="text-white" />
           </a>
         </div>
@@ -233,38 +313,49 @@ export default function Home() {
         />
         
         {/* Status Badge */}
-        <div className="absolute top-6 left-6 bg-red-600 px-4 py-2 rounded-full border border-red-700 z-10 shadow-lg">
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-red-600 px-4 py-2 rounded-full border border-red-700 z-10 shadow-lg">
             <span className="text-[10px] font-black uppercase tracking-widest text-white">Under Development</span>
         </div>
 
         {/* Blurred Bottom Overlay */}
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-white/90 via-white/60 to-transparent dark:from-emerald-950/90 dark:via-emerald-950/70 backdrop-blur-lg p-8 flex flex-col justify-end text-white">
-          <div className="space-y-4">
+        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-white/90 via-white/60 to-transparent dark:from-emerald-950/90 dark:via-emerald-950/70 backdrop-blur-lg p-4 sm:p-8 flex flex-col justify-end text-white">
+          <div className="space-y-3">
             
-            <div className="space-y-1.5">
-              <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Musiciana</h3>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {['Supabase', 'React', 'Next.js'].map(t => (
-                  <span key={t} className="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">
-                    {t}
-                  </span>
-                ))}
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none">Musiciana</h3>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">Supabase</span>
+                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">React</span>
+                <span className={`${expandedCard === 'musiciana' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300`}>Next.js</span>
               </div>
             </div>
 
-            <p className="text-white/85 text-sm leading-relaxed max-w-lg">
-              Cloud-based music streaming engine with real-time database synchronization and sleek user interface inspired by modern platforms.
+            <p className={`${expandedCard === 'musiciana' ? 'block' : 'hidden sm:block'} text-white/85 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg`}>
+              Cloud-based music streaming engine with real-time database synchronization and sleek UI.
             </p>
 
-            <div className="pt-4 border-t border-white/10">
-              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/70 mb-1">Developed By:</p>
-              <div className="text-[11px] font-medium text-white/80 flex flex-wrap gap-x-3 gap-y-0.5">
-                <span className="text-white font-bold">• Rhandell D. Cangayo</span>
-              </div>
+            <div className="pt-2 border-t border-white/10">
+              <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
+              {expandedCard === 'musiciana' ? (
+                <div className="text-[10px] sm:text-[10px] font-medium text-white/80">
+                  <span className="text-white font-bold">• Rhandell D. Cangayo</span>
+                </div>
+              ) : (
+                <div className="text-[10px] font-medium text-white/80">
+                  <span className="text-white font-bold">• Rhandell D. Cangayo</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setExpandedCard(expandedCard === 'musiciana' ? null : 'musiciana')}
+                className="mt-2 sm:hidden text-[9px] font-semibold uppercase tracking-[0.1em] text-blue-200"
+              >
+                {expandedCard === 'musiciana' ? '↑ Hide' : '↓ View all'}
+              </button>
             </div>
           </div>
           
-          <div className="absolute top-4 right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10">
+          <div className="absolute top-4 right-4 sm:right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10">
             <Music size={20} className="text-emerald-300" />
           </div>
         </div>
