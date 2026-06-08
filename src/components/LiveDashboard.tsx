@@ -6,7 +6,7 @@ import { ArrowUpRight, CloudSun, Cpu, Globe2 } from 'lucide-react';
 type ProjectStatus = {
   name: string;
   url?: string;
-  status: 'checking' | 'online' | 'offline' | 'development';
+  status: 'checking' | 'online' | 'offline' | 'Under-development';
   latency?: number;
   code?: number;
   note?: string;
@@ -71,7 +71,7 @@ export default function LiveDashboard() {
     },
     {
       name: 'Musiciana',
-      status: 'development',
+      status: 'Under-development',
       note: 'Under development — preview coming soon',
     },
     {
@@ -189,7 +189,7 @@ export default function LiveDashboard() {
 
     const checkProject = async (project: ProjectStatus): Promise<ProjectStatus> => {
       if (!project.url) {
-        return { ...project, status: 'development', latency: undefined, code: undefined };
+        return { ...project, status: 'Under-development', latency: undefined, code: undefined };
       }
 
       if (project.note && project.note.toLowerCase().includes('expired')) {
@@ -323,165 +323,163 @@ export default function LiveDashboard() {
     switch (status) {
       case 'online':
         return { width: 100, color: 'bg-emerald-500', label: 'Online' };
-      case 'development':
-        return { width: 60, color: 'bg-amber-500', label: 'Development' };
+      case 'Under-development':
+        return { width: 60, color: 'bg-amber-500', label: 'Under-development' };
       default:
         return { width: 20, color: 'bg-rose-500', label: 'Offline' };
     }
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr] min-w-0">
-      <div className="grid gap-6 md:grid-cols-2 min-w-0">
-        <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-sky-500/10 backdrop-blur-xl ring-1 ring-white/10">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-blue-600/90">System Telemetry</p>
-              <h3 className="mt-3 text-2xl font-black tracking-tight">Live Stats</h3>
+    <div className="grid gap-6 lg:grid-cols-2 min-w-0">
+      <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-sky-500/10 backdrop-blur-xl ring-1 ring-white/10">
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-blue-600/90">System Telemetry</p>
+            <h3 className="mt-3 text-2xl font-black tracking-tight">Live Stats</h3>
+          </div>
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-blue-500/10 text-blue-500">
+            <Cpu size={24} />
+          </div>
+        </div>
+
+        <div className="space-y-5 text-sm text-zinc-600 dark:text-zinc-300">
+          <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-semibold">CPU Load</span>
+              <span>{Math.round(systemMetrics.cpuLoad * 100)}%</span>
             </div>
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-blue-500/10 text-blue-500">
-              <Cpu size={24} />
+            <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                style={{ width: `${Math.round(systemMetrics.cpuLoad * 100)}%` }}
+              />
             </div>
           </div>
 
-          <div className="space-y-5 text-sm text-zinc-600 dark:text-zinc-300">
-            <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-semibold">CPU Load</span>
-                <span>{Math.round(systemMetrics.cpuLoad * 100)}%</span>
-              </div>
-              <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                <div
-                  className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                  style={{ width: `${Math.round(systemMetrics.cpuLoad * 100)}%` }}
-                />
-              </div>
+          <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-semibold">Memory Utilization</span>
+              <span>{Math.round(systemMetrics.memoryLoad * 100)}%</span>
             </div>
-
-            <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-semibold">Memory Utilization</span>
-                <span>{Math.round(systemMetrics.memoryLoad * 100)}%</span>
-              </div>
-              <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                <div
-                  className="h-full rounded-full bg-cyan-500 transition-all duration-500"
-                  style={{ width: `${Math.round(systemMetrics.memoryLoad * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-semibold">Network Quality</span>
-                <span>{Math.round(systemMetrics.networkLoad * 100)}%</span>
-              </div>
-              <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                <div
-                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                  style={{ width: `${Math.round(systemMetrics.networkLoad * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Threads</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{hardware.cpu || 'Auto'}</p>
-              </div>
-              <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Memory</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{hardware.ram ? `${hardware.ram} GB` : memoryUsage}</p>
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-3xl border border-blue-200/70 bg-blue-50/80 px-4 py-3 text-sm text-blue-700 dark:border-blue-500/20 dark:bg-blue-950/20 dark:text-blue-200">
-              These device stats reflect the active browser/device currently viewing this page.
-            </div>
-          </div>
-        </section>
-
-        <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-fuchsia-500/10 backdrop-blur-xl ring-1 ring-white/10">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-violet-500/90">Project Network</p>
-              <h3 className="mt-3 text-2xl font-black tracking-tight">Live Project Pulse</h3>
-            </div>
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-violet-500/10 text-violet-500">
-              <Globe2 size={24} />
+            <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-cyan-500 transition-all duration-500"
+                style={{ width: `${Math.round(systemMetrics.memoryLoad * 100)}%` }}
+              />
             </div>
           </div>
 
-          <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
-            {projectStatuses.map((project) => {
-              const pulse = getProjectPulse(project.status);
-              return (
-                <div key={project.name} className="rounded-3xl border border-zinc-200/40 bg-transparent px-4 py-3 dark:border-zinc-800/60 dark:bg-transparent">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-zinc-900 dark:text-white">{project.name}</p>
-                      {project.url ? (
-                        <a
-                          href={project.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="project-url inline-block px-2 py-0.5 rounded-md bg-white/90 dark:bg-transparent text-[11px] !text-slate-900 hover:underline dark:!text-zinc-300 break-words max-w-full"
-                        >
-                          {project.url}
-                        </a>
-                      ) : (
-                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 break-words max-w-full">Not hosted yet</p>
-                      )}
-                      {project.note && (
-                        <p className="mt-1 text-[10px] uppercase tracking-[0.35em] text-amber-500 dark:text-amber-400 break-words max-w-full">{project.note}</p>
-                      )}
-                    </div>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${
-                      project.status === 'online'
-                        ? 'bg-emerald-500/10 text-emerald-500'
-                        : project.status === 'development'
-                        ? 'bg-amber-500/10 text-amber-500'
-                        : 'bg-rose-500/10 text-rose-500'
-                    }`}>
-                      {pulse.label}
-                    </span>
+          <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-semibold">Network Quality</span>
+              <span>{Math.round(systemMetrics.networkLoad * 100)}%</span>
+            </div>
+            <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                style={{ width: `${Math.round(systemMetrics.networkLoad * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Threads</p>
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{hardware.cpu || 'Auto'}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Memory</p>
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{hardware.ram ? `${hardware.ram} GB` : memoryUsage}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-3xl border border-blue-200/70 bg-blue-50/80 px-4 py-3 text-sm text-blue-700 dark:border-blue-500/20 dark:bg-blue-950/20 dark:text-blue-200">
+            These device stats reflect the active browser/device currently viewing this page.
+          </div>
+        </div>
+      </section>
+
+      <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-fuchsia-500/10 backdrop-blur-xl ring-1 ring-white/10">
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-violet-500/90">Project Network</p>
+            <h3 className="mt-3 text-2xl font-black tracking-tight">Live Project Pulse</h3>
+          </div>
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-violet-500/10 text-violet-500">
+            <Globe2 size={24} />
+          </div>
+        </div>
+
+        <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
+          {projectStatuses.map((project) => {
+            const pulse = getProjectPulse(project.status);
+            return (
+              <div key={project.name} className="rounded-3xl border border-zinc-200/40 bg-transparent px-4 py-3 dark:border-zinc-800/60 dark:bg-transparent">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-zinc-900 dark:text-white">{project.name}</p>
+                    {project.url ? (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="project-url inline-block px-2 py-0.5 rounded-md bg-white/90 dark:bg-transparent text-[11px] !text-slate-900 hover:underline dark:!text-zinc-300 break-words max-w-full"
+                      >
+                        {project.url}
+                      </a>
+                    ) : (
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 break-words max-w-full">Not hosted yet</p>
+                    )}
+                    {project.note && (
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.35em] text-amber-500 dark:text-amber-400 break-words max-w-full">{project.note}</p>
+                    )}
                   </div>
+                  <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${
+                    project.status === 'online'
+                      ? 'bg-emerald-500/10 text-emerald-500'
+                      : project.status === 'Under-development'
+                      ? 'bg-amber-500/10 text-amber-500'
+                      : 'bg-rose-500/10 text-rose-500'
+                  }`}>
+                    {pulse.label}
+                  </span>
+                </div>
 
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between text-[11px] text-slate-700 dark:text-zinc-400 mb-2 gap-2">
-                      <span>Live pulse</span>
-                      <span>{Math.round(pulse.width)}%</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                      <div
-                        className={`h-full rounded-full ${pulse.color} transition-all duration-500`}
-                        style={{ width: `${pulse.width}%` }}
-                      />
-                    </div>
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-[11px] text-slate-700 dark:text-zinc-400 mb-2 gap-2">
+                    <span>Live pulse</span>
+                    <span>{Math.round(pulse.width)}%</span>
                   </div>
-
-                  <div className="mt-3 flex items-center justify-between text-[12px] text-slate-700 dark:text-zinc-400">
-                    <span>{project.status === 'development' ? 'Under development' : formatLatency(project.latency)}</span>
-                    <span>{project.code ? `HTTP ${project.code}` : ''}</span>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+                    <div
+                      className={`h-full rounded-full ${pulse.color} transition-all duration-500`}
+                      style={{ width: `${pulse.width}%` }}
+                    />
                   </div>
                 </div>
-              );
-            })}
 
-            <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Live uptime</p>
-                  <p className="mt-2 text-lg font-bold">{activeProjects}/{totalProjects} projects online</p>
+                <div className="mt-3 flex items-center justify-between text-[12px] text-slate-700 dark:text-zinc-400">
+                  <span>{project.status === 'Under-development' ? 'Under development' : formatLatency(project.latency)}</span>
+                  <span>{project.code ? `HTTP ${project.code}` : ''}</span>
                 </div>
-                <ArrowUpRight size={20} className="text-blue-600" />
               </div>
+            );
+          })}
+
+          <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Live uptime</p>
+                <p className="mt-2 text-lg font-bold">{activeProjects}/{totalProjects} projects online</p>
+              </div>
+              <ArrowUpRight size={20} className="text-blue-600" />
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
-      <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl ring-1 ring-white/10">
+      <section className="bento-card min-w-0 border-border p-6 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl ring-1 ring-white/10 lg:col-span-2">
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.35em] text-cyan-500/90">Live Weather</p>

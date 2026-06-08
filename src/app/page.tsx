@@ -251,13 +251,13 @@ export default function Home() {
             <span className="text-[10px] font-black uppercase tracking-tighter text-blue-600">Capstone Project • PDM • 2025 - 2026</span>
         </div>
 
-        {/* Blurred Bottom Overlay (Text Container) */}
-        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/10 via-black/6 to-transparent dark:from-black/80 dark:via-black/60 backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
+       {/* Blurred Bottom Overlay (Text Container) */}
+<div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
           <div className="space-y-3">
             
             {/* Title & Stacks - Minimal on Mobile */}
             <div className="space-y-1">
-              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none">SheltCare</h3>
+              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">SheltCare</h3>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">PHP</span>
                 <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">MySQL</span>
@@ -267,26 +267,29 @@ export default function Home() {
             </div>
 
             {/* Description - Hidden on Mobile, Shown on Expand */}
-            <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg`}>
-              SHELTCARE web system for adoption, donation, visitation, and sponsorship with IoT sensor integration for temperature and humidity control.
+            <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
+                {expandedCard === 'shelcare' ? 'SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.' : 'Web system for adoption, donation, visitation with IoT sensor integration.'}
             </p>
 
             {/* Developers List */}
             <div className="pt-2 border-t border-white/10">
               <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
-              {expandedCard === 'shelcare' ? (
-                <div className="text-[10px] sm:text-[10px] font-medium text-white/80 flex flex-wrap gap-1">
-                  <span>Justine Karl B.</span>
-                  <span>• Clarence S.</span>
-                  <span>• Diana Rose G.</span>
-                  <span className="text-blue-400 font-bold">• Rhandell D.</span>
-                </div>
-              ) : (
-                <div className="text-[10px] font-medium text-white/80">
-                  <span className="font-semibold">Rhandell D.</span>
-                  <span className="text-white/70"> +3 more</span>
-                </div>
-              )}
+              <div className="text-[10px] font-medium text-white/80 flex flex-wrap gap-1 hidden sm:flex">
+                <span>Justine Karl B. Cortezano,</span>
+                <span>Clarence S. Castro,</span>
+                <span>Diana Rose G. Capellan,</span>
+                <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
+              </div>
+              <div className={`${expandedCard === 'shelcare' ? 'flex' : 'hidden'} text-[10px] font-medium text-white/80 sm:hidden flex-wrap gap-1`}>
+                <span>Justine Karl B. Cortezano,</span>
+                <span>Clarence S. Castro,</span>
+                <span>Diana Rose G. Capellan,</span>
+                <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
+              </div>
+              <div className={`${expandedCard === 'shelcare' ? 'hidden' : 'flex'} text-[10px] font-medium text-white/80 sm:hidden`}>
+                <span className="font-semibold">Rhandell D.</span>
+                <span className="text-white/70"> +3 more</span>
+              </div>
               <button
                 type="button"
                 onClick={() => setExpandedCard(expandedCard === 'shelcare' ? null : 'shelcare')}
@@ -317,12 +320,12 @@ export default function Home() {
             <span className="text-[10px] font-black uppercase tracking-widest text-white">Under Development</span>
         </div>
 
-        {/* Blurred Bottom Overlay */}
-        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-white/90 via-white/60 to-transparent dark:from-emerald-950/90 dark:via-emerald-950/70 backdrop-blur-lg p-4 sm:p-8 flex flex-col justify-end text-white">
+        {/* Blurred Bottom Overlay (Text Container) */}
+<div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
           <div className="space-y-3">
             
             <div className="space-y-1">
-              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none">Musiciana</h3>
+              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">Musiciana</h3>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">Supabase</span>
                 <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">React</span>
@@ -330,7 +333,7 @@ export default function Home() {
               </div>
             </div>
 
-            <p className={`${expandedCard === 'musiciana' ? 'block' : 'hidden sm:block'} text-white/85 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg`}>
+            <p className={`${expandedCard === 'musiciana' ? 'block' : 'hidden sm:block'} text-white/85 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
               Cloud-based music streaming engine with real-time database synchronization and sleek UI.
             </p>
 

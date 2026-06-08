@@ -178,6 +178,7 @@ img { display: block; max-width: 100%; }
 .dark .rounded-\[2\.5rem\] > img,
 .dark .aspect-\[3\/4\] > img {
   filter: brightness(0.52) saturate(0.7) contrast(0.9) grayscale(0.02);
+  filter: none !important; /* <--- GAWIN ITONG NONE */
 }
 
 /* Slight lift on hover in light mode, but keep subdued in dark to avoid flicker */
