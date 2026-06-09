@@ -106,6 +106,7 @@ GREETING: "Hello! I am RCDC AI, the digital assistant of Rhandell. How can I hel
         status: isQuota ? 429 : 500, 
         headers: { 'Content-Type': 'application/json' } 
       }
-    );
+    ); 
   }
+  
 }
