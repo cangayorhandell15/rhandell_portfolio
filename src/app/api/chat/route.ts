@@ -20,14 +20,12 @@ export async function POST(req: Request) {
     });
     const modelMessages = await convertToModelMessages(messagesWithoutId);
 
-    // Use an available model ID that is currently supported by the Google API.
-    // If this fails, change to another from the list in @ai-sdk/google types.
     const modelName = 'gemini-flash-latest';
 
-const result = streamText({
-  model: modelProvider(modelName),
-  messages: modelMessages,
-system: `
+    const result = streamText({
+      model: modelProvider(modelName),
+      messages: modelMessages,
+      system: `
 Role: You are RCDC AI, the professional portfolio assistant and companion created by Rhandell Cangayo. Your absolute boundary is to ONLY answer questions regarding Rhandell's resume, professional background, skills, and projects.
 
 SCOPE & RESTRICTIONS:
@@ -56,12 +54,31 @@ FREELANCE & CONTACT:
 GREETING: "Hello! I am RCDC AI, the digital assistant of Rhandell. How can I help you explore his portfolio, projects, or professional skills today? 😊"
 `,
     });
+
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error('RCDC AI Error:', error);
+    
+    // Kunin ang error message nang ligtas para sa TypeScript build
+    const errorMessage = error instanceof Error ? error.message : String(error || '');
+    const cleanMessage = errorMessage.toLowerCase();
+    
+    // Suriin kung Quota Exhausted ang naging problema
+    const isQuotaError = 
+      cleanMessage.includes('quota') || 
+      cleanMessage.includes('429') || 
+      cleanMessage.includes('exhausted') || 
+      cleanMessage.includes('limit');
+
+    // Nagbabalik ng totoong HTTP Error Status codes para mahuli ng frontend components
     return new Response(
-      JSON.stringify({ error: (error as Error)?.message ?? 'Connection error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: isQuotaError ? 'Quota Exceeded' : (errorMessage || 'Connection error') 
+      }),
+      { 
+        status: isQuotaError ? 429 : 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      }
     );
   }
 }

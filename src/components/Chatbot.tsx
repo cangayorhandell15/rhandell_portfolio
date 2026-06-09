@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Bot, X, Send } from 'lucide-react';
+import { Bot, X, Send, AlertCircle } from 'lucide-react';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,13 +25,15 @@ export default function Chatbot() {
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
   });
-  const isLoading = status === 'streaming';
+  const isLoading = status === 'sending' || status === 'streaming';
+  const isTyping = isLoading;
 
+  // Ligtas na auto-scroll setup na katanggap-tanggap sa React dependencies
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages.length, isTyping, error]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -43,15 +45,26 @@ export default function Chatbot() {
     return undefined;
   }, [bubbleIndex, isOpen, bubbleSequence.length]);
 
-  // Set a random greeting when the chat opens
   const openChat = () => {
     if (!isOpen) {
       const randomGreeting = botGreetings[Math.floor(Math.random() * botGreetings.length)];
       setBotGreeting(randomGreeting);
-      setBubbleIndex(0); // reset speech cycle when opening
+      setBubbleIndex(0);
     }
     setIsOpen((prev) => !prev);
   };
+
+  // Helper compute property para malaman kung quota issue ang sanhi ng crash
+  const isQuotaError = useMemo(() => {
+    if (!error) return false;
+    const errorStr = String(error.message || JSON.stringify(error)).toLowerCase();
+    return (
+      errorStr.includes('quota') || 
+      errorStr.includes('429') || 
+      errorStr.includes('exhausted') || 
+      errorStr.includes('limit')
+    );
+  }, [error]);
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-20 flex flex-col items-end">
@@ -73,11 +86,6 @@ export default function Chatbot() {
           
           {/* Messages Area */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
-            {error && (
-              <div className="text-center py-2 text-red-600 dark:text-red-400">
-                Error: {error.message}
-              </div>
-            )}
             {messages.length === 0 && (
               <div className="text-center py-8 space-y-3">
                 <img
@@ -89,15 +97,8 @@ export default function Chatbot() {
                 <p className="text-xs text-muted font-medium">Ask me anything about projects, tips, or RCDC services.</p>
               </div>
             )}
-
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[60%] rounded-2xl px-4 py-2 text-sm bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700 animate-pulse">
-                  ...
-                </div>
-              </div>
-            )}
             
+            {/* Messages rendering */}
             {messages.map((m: any) => {
               const textContent = m.parts
                 ?.filter((part: any) => part.type === 'text')
@@ -116,6 +117,35 @@ export default function Chatbot() {
                 </div>
               );
             })}
+
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="max-w-[60%] rounded-2xl px-4 py-2.5 text-sm bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700 rounded-tl-none">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.3s]" />
+                    <span className="h-2 w-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.15s]" />
+                    <span className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" />
+                    <span>RCDC is typing...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Ang magandang error layout block box */}
+            {error && (
+              <div className="flex justify-center p-2 animate-in fade-in zoom-in duration-200">
+                <div className="flex flex-col items-center gap-2 max-w-[90%] bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 p-4 rounded-2xl text-center shadow-sm">
+                  <AlertCircle size={20} className="text-red-500 shrink-0" />
+                  <p className="text-xs font-semibold leading-relaxed">
+                    {isQuotaError 
+                      ? "Sorry for the inconvenience! The daily free usage limit for this chatbot has been reached. Please try again tomorrow! 😊"
+                      : `Connection error: ${error.message || 'Subukan ulit.'}`
+                    }
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Form */}
@@ -125,9 +155,9 @@ export default function Chatbot() {
               const text = input.trim();
               if (!text) return;
 
+              setInput('');
               try {
                 await sendMessage({ text });
-                setInput('');
               } catch (sendError) {
                 console.error('Chat sendMessage failed', sendError);
               }
@@ -136,14 +166,15 @@ export default function Chatbot() {
           >
             <div className="relative flex items-center">
               <input
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2.5 text-sm outline-none text-foreground focus:ring-1 ring-blue-500/50 transition-all"
+                className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2.5 text-sm outline-none text-foreground focus:ring-1 ring-blue-500/50 transition-all disabled:opacity-50"
                 value={input}
-                placeholder="Ask something about Rhandell..."
+                disabled={isLoading || isQuotaError}
+                placeholder={isQuotaError ? "Chat locked until tomorrow..." : "Ask something about Rhandell..."}
                 onChange={(e) => setInput(e.target.value)}
               />
               <button
                 type="submit"
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || !input.trim() || isQuotaError}
                 className="absolute right-1.5 p-1.5 bg-blue-600 text-white rounded-lg disabled:opacity-30 hover:bg-blue-700 transition-all"
               >
                 <Send size={14} />
