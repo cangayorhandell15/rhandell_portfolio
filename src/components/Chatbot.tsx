@@ -8,11 +8,15 @@ import { Bot, X, Send, AlertCircle } from 'lucide-react';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
   const [botGreeting, setBotGreeting] = useState('');
   const bubbleSequence = useMemo(() => ['Hi...', 'I’m RCDC...', 'Do you need something?'], []);
   const [bubbleIndex, setBubbleIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Controlled states para sa input at loading indicators
+  const [chatInput, setChatInput] = useState('');
+  const [isManualLoading, setIsManualLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const botGreetings = [
     'Hi, I’m RCDC 🤖 How may I help you today?',
@@ -22,18 +26,25 @@ export default function Chatbot() {
     'Greetings! RCDC AI here—let’s build something awesome together.'
   ];
 
-  const { messages, sendMessage, status, error } = useChat({
+  // Gagamitin natin ang reload at setMessages para sa kontroladong processing loop
+  const { messages, status, error: sdkError, reload, setMessages } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
+    onError: (err) => {
+      console.error('Chat SDK captured an error:', err);
+      setLocalError(err.message || 'Quota Exceeded');
+    }
   });
-  const isLoading = status === 'sending' || status === 'streaming';
-  const isTyping = isLoading;
+  
+  // Dynamic validation para sa system checks
+  const activeError = localError || (sdkError?.message || null);
+  const isLoading = status === 'sending' || status === 'streaming' || isManualLoading;
+  const isTyping = isLoading && !activeError;
 
-  // Ligtas na auto-scroll setup na katanggap-tanggap sa React dependencies
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages.length, isTyping, error]);
+  }, [messages.length, isTyping, activeError]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -54,17 +65,16 @@ export default function Chatbot() {
     setIsOpen((prev) => !prev);
   };
 
-  // Helper compute property para malaman kung quota issue ang sanhi ng crash
   const isQuotaError = useMemo(() => {
-    if (!error) return false;
-    const errorStr = String(error.message || JSON.stringify(error)).toLowerCase();
+    if (!activeError) return false;
+    const errorStr = String(activeError).toLowerCase();
     return (
       errorStr.includes('quota') || 
       errorStr.includes('429') || 
       errorStr.includes('exhausted') || 
       errorStr.includes('limit')
     );
-  }, [error]);
+  }, [activeError]);
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-20 flex flex-col items-end">
@@ -133,14 +143,14 @@ export default function Chatbot() {
             )}
 
             {/* Ang magandang error layout block box */}
-            {error && (
+            {activeError && (
               <div className="flex justify-center p-2 animate-in fade-in zoom-in duration-200">
                 <div className="flex flex-col items-center gap-2 max-w-[90%] bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 p-4 rounded-2xl text-center shadow-sm">
                   <AlertCircle size={20} className="text-red-500 shrink-0" />
                   <p className="text-xs font-semibold leading-relaxed">
                     {isQuotaError 
                       ? "Sorry for the inconvenience! The daily free usage limit for this chatbot has been reached. Please try again tomorrow! 😊"
-                      : `Connection error: ${error.message || 'Subukan ulit.'}`
+                      : `Connection error: ${activeError}`
                     }
                   </p>
                 </div>
@@ -152,14 +162,62 @@ export default function Chatbot() {
           <form
             onSubmit={async (e) => {
               e.preventDefault();
-              const text = input.trim();
-              if (!text) return;
+              const text = chatInput.trim();
+              if (!text || isLoading) return;
 
-              setInput('');
+              setChatInput('');
+              setLocalError(null);
+              setIsManualLoading(true);
+
+              // 1. I-update ang messages array sa ligtas at tamang React status hook convention (Walang direct push mutation)
+              const updatedMessages = [
+                ...messages,
+                {
+                  id: Math.random().toString(36).substring(7),
+                  role: 'user' as const,
+                  content: text,
+                  createdAt: new Date()
+                }
+              ];
+              setMessages(updatedMessages);
+
               try {
-                await sendMessage({ text });
-              } catch (sendError) {
-                console.error('Chat sendMessage failed', sendError);
+                // 2. Tinitest muna natin ang API kung quota-locked bago natin hayaang mag-stream si useChat
+                const response = await fetch('/api/chat', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    messages: updatedMessages.map(m => ({ role: m.role, content: m.content }))
+                  }),
+                });
+
+                // Kung ang response ay hinarangan ng backend (Hindi naging response.ok)
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}));
+                  const remoteMsg = errorData?.error || `Server returned status ${response.status}`;
+                  
+                  if (response.status === 429 || remoteMsg.toLowerCase().includes('quota')) {
+                    setLocalError('Quota Exceeded');
+                  } else {
+                    setLocalError(remoteMsg);
+                  }
+
+                  // I-rollback ang messages para matanggal ang sirang huling mensahe sa interface
+                  setMessages(messages);
+                  setIsManualLoading(false);
+                  return;
+                }
+
+                // 3. Kung ligtas (200 OK), tawagin ang reload() para simulan ang real-time streaming output
+                setIsManualLoading(false);
+                if (typeof reload === 'function') {
+                  await reload();
+                }
+              } catch (err: any) {
+                console.error("Form transmission failed:", err);
+                setLocalError(err?.message || 'Quota Exceeded');
+                setMessages(messages); // I-rollback ang messages array
+                setIsManualLoading(false);
               }
             }}
             className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
@@ -167,14 +225,14 @@ export default function Chatbot() {
             <div className="relative flex items-center">
               <input
                 className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2.5 text-sm outline-none text-foreground focus:ring-1 ring-blue-500/50 transition-all disabled:opacity-50"
-                value={input}
+                value={chatInput}
                 disabled={isLoading || isQuotaError}
                 placeholder={isQuotaError ? "Chat locked until tomorrow..." : "Ask something about Rhandell..."}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => setChatInput(e.target.value)}
               />
               <button
                 type="submit"
-                disabled={isLoading || !input.trim() || isQuotaError}
+                disabled={isLoading || !chatInput.trim() || isQuotaError}
                 className="absolute right-1.5 p-1.5 bg-blue-600 text-white rounded-lg disabled:opacity-30 hover:bg-blue-700 transition-all"
               >
                 <Send size={14} />
