@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { 
-  Github, Mail, ExternalLink, Moon, Sun, Music, Download, Menu, X, ChevronDown
+  Github, Mail, ExternalLink, Moon, Sun, Music, Download, Menu, X, ChevronDown, MessageSquare
 } from 'lucide-react';
 import LiveDashboard from '@/components/LiveDashboard';
+import DiscordEmbed from '@/components/DiscordEmbed';
 import LoadingScreen from '@/components/loading';
 
 const Chatbot = dynamic(() => import('../components/Chatbot'), { ssr: false });
@@ -70,14 +71,18 @@ export default function Home() {
       {/* --- NAVIGATION --- */}
       <nav className="fixed top-0 w-full z-40 site-nav bg-background/50 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-          <a href="#home" className="flex items-center gap-3 group" onClick={() => setMobileMenuOpen(false)}>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-3 group focus:outline-none"
+          >
             <img 
               src="/imag/logo1.jpg" 
               alt="RCDC Logo" 
               className="h-10 w-10 rounded-xl object-cover border border-border shadow-sm group-hover:scale-110 transition-transform" 
             />
             <span className="font-black text-xl tracking-tighter hidden sm:block uppercase">Rhandell's<span className="text-blue-600"> portfolio</span></span>
-          </a>
+          </button>
 
           {/* Desktop Navigation & Controls */}
           <div className="hidden md:flex items-center gap-10">
@@ -168,9 +173,10 @@ export default function Home() {
                     Download CV <Download size={16} />
                   </a>
                   <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-start">
-                    <a href="https://github.com/RhandellCangayo" target="_blank" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Github size={20} /></a>
+                    <a href="https://github.com/cangayorhandell15" target="_blank" rel="noreferrer" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Github size={20} /></a>
                     <a href="mailto:cangayorhandell15@gmail.com" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Mail size={20} /></a>
                   </div>
+           
                 </div>
               </>
             )}
@@ -201,7 +207,7 @@ export default function Home() {
           <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div className="space-y-4">
               <p className="text-sm uppercase tracking-[0.45em] text-blue-600/90">Live Intelligence</p>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight">Telemetry, Network, & Weather</h2>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight">Telemetry, Network, Weather, & Github Profile</h2>
               <p className="max-w-2xl text-muted">
                 Real time status of your device, my portfolio availability, and the latest weather updates.
               </p>
@@ -217,7 +223,10 @@ export default function Home() {
             </button>
           </div>
 
-          {dashboardOpen && <LiveDashboard />}
+          <div className="space-y-8">
+            <DiscordEmbed clientId={process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID!} open={true} />
+            {dashboardOpen && <LiveDashboard />}
+          </div>
         </div>
       </section>
 
@@ -268,7 +277,7 @@ export default function Home() {
 
             {/* Description - Hidden on Mobile, Shown on Expand */}
             <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
-                {expandedCard === 'shelcare' ? 'SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.' : 'Web system for adoption, donation, visitation with IoT sensor integration.'}
+                {expandedCard === 'shelcare' ? 'SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.' : 'SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.'}
             </p>
 
             {/* Developers List */}
@@ -367,6 +376,7 @@ export default function Home() {
     </div>
   </div>
 </section>
+      {/* Discord popup removed */}
       <Chatbot />
     </div>
   );
