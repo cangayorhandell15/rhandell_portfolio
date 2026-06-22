@@ -23,7 +23,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
-  const [expandedCard, setExpandedCard] = useState<'shelcare' | 'musiciana' | null>(null);
+  const [expandedCard, setExpandedCard] = useState<'sheltcare' | 'musiciana' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [filter, setFilter] = useState<'telemetry' | 'pulse' | 'weather' | 'github'>('telemetry');
   const [activeCategory, setActiveCategory] = useState<'telemetry' | 'pulse' | 'weather' | 'github'>('telemetry');
