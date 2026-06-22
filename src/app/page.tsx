@@ -23,10 +23,8 @@ export default function Home() {
   const [text, setText] = useState('');
   const [expandedCard, setExpandedCard] = useState<'shelcare' | 'musiciana' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-// Gawin mong 'telemetry' ang default para isa lang ang magpakita sa simula
-const [filter, setFilter] = useState<string>('telemetry');
- const [activeCategory, setActiveCategory] = useState<string>('telemetry');
-  // Changed default state to false so the portfolio landing stays super clean
+  const [filter, setFilter] = useState<'telemetry' | 'pulse' | 'weather' | 'github'>('telemetry');
+  const [activeCategory, setActiveCategory] = useState<'telemetry' | 'pulse' | 'weather' | 'github'>('telemetry');
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const fullText = "Hi, I am Rhandell Cangayo";
 
