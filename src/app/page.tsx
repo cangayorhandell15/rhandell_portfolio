@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { 
-  Github, Mail, ExternalLink, Moon, Sun, Music, Download, Menu, X, ChevronDown, MessageSquare
+  Github, Mail, ExternalLink, Moon, Sun, Music, Download, Menu, X, ChevronDown, Activity, Terminal
 } from 'lucide-react';
 import LiveDashboard from '@/components/LiveDashboard';
 import DiscordEmbed from '@/components/DiscordEmbed';
@@ -23,7 +23,11 @@ export default function Home() {
   const [text, setText] = useState('');
   const [expandedCard, setExpandedCard] = useState<'shelcare' | 'musiciana' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dashboardOpen, setDashboardOpen] = useState(true);
+// Gawin mong 'telemetry' ang default para isa lang ang magpakita sa simula
+const [filter, setFilter] = useState<string>('telemetry');
+ const [activeCategory, setActiveCategory] = useState<string>('telemetry');
+  // Changed default state to false so the portfolio landing stays super clean
+  const [dashboardOpen, setDashboardOpen] = useState(false);
   const fullText = "Hi, I am Rhandell Cangayo";
 
   useEffect(() => {
@@ -64,8 +68,7 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    // Tinanggal ko yung snap-y snap-mandatory para mas natural yung scroll
-    <div className="min-h-screen bg-background text-foreground selection:bg-blue-500/30 scroll-smooth overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground selection:bg-blue-500/30 scroll-smooth overflow-x-hidden relative">
       {loading && <LoadingScreen />}
 
       {/* --- NAVIGATION --- */}
@@ -89,6 +92,13 @@ export default function Home() {
             <div className="flex gap-10 text-[11px] font-black tracking-[0.25em] text-muted">
               <a href="#home" className="hover:text-blue-600 transition-colors uppercase">Home</a>
               <a href="#portfolio" className="hover:text-blue-600 transition-colors uppercase">Portfolio</a>
+              {/* Desktop Dashboard Nav Trigger */}
+              <button 
+                onClick={() => setDashboardOpen(true)} 
+                className="hover:text-blue-600 text-[11px] font-black tracking-[0.25em] text-muted transition-colors uppercase flex items-center gap-1"
+              >
+                Live Stats <Activity size={12} />
+              </button>
             </div>
 
             <button 
@@ -134,6 +144,12 @@ export default function Home() {
               >
                 Portfolio
               </a>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); setDashboardOpen(true); }}
+                className="text-left text-sm font-bold tracking-[0.2em] text-muted hover:text-blue-600 transition-colors uppercase flex items-center gap-2"
+              >
+                Live Stats <Activity size={14} />
+              </button>
             </div>
           </div>
         )}
@@ -156,10 +172,9 @@ export default function Home() {
                   <p className="text-blue-600 font-mono text-sm font-bold tracking-[0.3em] uppercase min-h-[20px]">
                     {text}<span className="animate-pulse">|</span>
                   </p>
-                  <h1  className="hero-top text-4xl sm:text-3xl md:text-3xl lg:text-7xl font-black tracking-tighter leading-[1] lg:leading-[0.9] uppercase"><span className="text-muted">Aspiring</span> </h1>
+                  <h1 className="hero-top text-4xl sm:text-3xl md:text-3xl lg:text-7xl font-black tracking-tighter leading-[1] lg:leading-[0.9] uppercase"><span className="text-muted">Aspiring</span> </h1>
                   <h1 className="hero-main text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1] lg:leading-[0.9] uppercase">
                     Software Engineer <br />
-       
                   </h1>
                 </div>
                 
@@ -167,7 +182,6 @@ export default function Home() {
                   A recent graduate and an aspiring software engineer. I highly value continuous learning and innovation, with a strong belief in the power of technology to create meaningful impact.
                 </p>
 
-         
                 <div className="flex flex-wrap gap-4 pt-4">
                   <a href="/RESUME/rhandell_CV.pdf" download className="btn-primary active:scale-95 transition-all w-full sm:w-auto justify-center">
                     Download CV <Download size={16} />
@@ -175,8 +189,14 @@ export default function Home() {
                   <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-start">
                     <a href="https://github.com/cangayorhandell15" target="_blank" rel="noreferrer" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Github size={20} /></a>
                     <a href="mailto:cangayorhandell15@gmail.com" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Mail size={20} /></a>
+                    {/* Inline action button to bring up the stats directly */}
+                    <button 
+                      onClick={() => setDashboardOpen(true)}
+                      className="p-4 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded-2xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors shadow-sm flex items-center gap-2 font-mono text-xs font-bold"
+                    >
+                      <Terminal size={18} /> LIVE_TELEMETRY.EXE
+                    </button>
                   </div>
-           
                 </div>
               </>
             )}
@@ -201,182 +221,244 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- SECTION 2: LIVE DASHBOARD --- */}
-      <section id="dashboard" className="w-full overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_38%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.08),_transparent_28%)] py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-4">
-              <p className="text-sm uppercase tracking-[0.45em] text-blue-600/90">Live Intelligence</p>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight">Telemetry, Network, Weather, & Github Profile</h2>
-              <p className="max-w-2xl text-muted">
-                Real time status of your device, my portfolio availability, and the latest weather updates.
+      {/* --- SECTION 3: PORTFOLIO --- */}
+      <section id="portfolio" className="min-h-screen w-full flex items-center justify-center p-6 py-20 md:py-32 bg-white/90 dark:bg-transparent">
+        <div className="max-w-7xl w-full space-y-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-10">
+            <div className="space-y-2">
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
+                My <br /> <span className="text-blue-600">Works.</span>
+              </h2>
+              <p className="text-muted font-medium max-w-md">
+                Focused on performance and user utility.
               </p>
             </div>
-            
-            {/* Mobile Dashboard Toggle */}
-            <button
-              onClick={() => setDashboardOpen(!dashboardOpen)}
-              className="md:hidden flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-            >
-              {dashboardOpen ? 'Hide Dashboard' : 'Show Dashboard'}
-              <ChevronDown size={18} className={`transition-transform ${dashboardOpen ? '' : '-rotate-90'}`} />
-            </button>
           </div>
 
-          <div className="space-y-8">
-            <DiscordEmbed clientId={process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID!} open={true} />
-            {dashboardOpen && <LiveDashboard />}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* PROJECT 1: SHELTCARE (CAPSTONE) */}
+            <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
+              <img 
+                src="/imag/maxx.jfif" 
+                alt="SheltCare Preview"
+                className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border z-10">
+                  <span className="text-[10px] font-black uppercase tracking-tighter text-blue-600">Capstone Project • PDM • 2025 - 2026</span>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">SheltCare</h3>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">PHP</span>
+                      <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">MySQL</span>
+                      <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>ESP32</span>
+                      <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>IoT</span>
+                    </div>
+                  </div>
+                  <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
+                      SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.
+                  </p>
+                  <div className="pt-2 border-t border-white/10">
+                    <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
+                    <div className="text-[10px] font-medium text-white/80 flex flex-wrap gap-1 hidden sm:flex">
+                      <span>Justine Karl B. Cortezano,</span>
+                      <span>Clarence S. Castro,</span>
+                      <span>Diana Rose G. Capellan,</span>
+                      <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
+                    </div>
+                    <div className={`${expandedCard === 'shelcare' ? 'flex' : 'hidden'} text-[10px] font-medium text-white/80 sm:hidden flex-wrap gap-1`}>
+                      <span>Justine Karl B. Cortezano,</span>
+                      <span>Clarence S. Castro,</span>
+                      <span>Diana Rose G. Capellan,</span>
+                      <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
+                    </div>
+                    <div className={`${expandedCard === 'shelcare' ? 'hidden' : 'flex'} text-[10px] font-medium text-white/80 sm:hidden`}>
+                      <span className="font-semibold">Rhandell D.</span>
+                      <span className="text-white/70"> +3 more</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedCard(expandedCard === 'shelcare' ? null : 'shelcare')}
+                      className="mt-2 sm:hidden text-[9px] font-semibold uppercase tracking-[0.1em] text-blue-200"
+                    >
+                      {expandedCard === 'shelcare' ? '↑ Hide' : '↓ View all'}
+                    </button>
+                  </div>
+                </div>
+                <a href="https://maxxfurryfriends.com/website/website_interface/MainPage.php" target="_blank" rel="noreferrer" className="absolute top-4 right-4 sm:right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ExternalLink size={20} className="text-white" />
+                </a>
+              </div>
+            </div>
+
+         {/* PROJECT 2: MUSICIANA */}
+            <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
+              <img 
+                src="/imag/MUSICIANA.png" 
+                alt="Musiciana Preview"
+                className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+              />
+              
+              {/* DYNAMIC DEPLOYMENT BADGE */}
+              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-col gap-1.5 z-10">
+                <a 
+                  href="https://rhandell-musiciana-tjxh.vercel.app" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="bg-emerald-500/90 dark:bg-emerald-600/90 hover:bg-emerald-600 px-3.5 py-1.5 rounded-full border border-emerald-400/20 shadow-lg text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-1 backdrop-blur-md transition-all"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                  <span>Live Production</span>
+                </a>
+              </div>
+
+              <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/85 via-black/50 to-transparent backdrop-blur-md p-4 sm:p-6 flex flex-col justify-end text-white">
+                <div className="space-y-2.5">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">Musiciana</h3>
+                    </div>
+                    
+                    {/* Project URL display */}
+                    <a 
+                      href="https://rhandell-musiciana-tjxh.vercel.app"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[10px] text-emerald-300/90 font-mono hover:underline block truncate max-w-[220px] sm:max-w-xs mb-1"
+                    >
+                      rhandell-musiciana-tjxh.vercel.app
+                    </a>
+
+                    {/* Updated Tech Stack Badges */}
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-emerald-300">Next.js</span>
+                      <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-emerald-300">React</span>
+                      <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-cyan-300">Supabase DB</span>
+                      <span className="px-1.5 py-0.5 bg-red-500/20 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-red-500/20 text-red-300">Attack Protection</span>
+                    </div>
+                  </div>
+                  
+                  {/* 🛠️ NEW DETAILED DESCRIPTION */}
+                  <p className="text-white/90 text-xs sm:text-xs leading-relaxed max-w-full drop-shadow-md">
+                    Web-based karaoke engine featuring dynamic party rooms. Anyone can scan the QR code to join the session, manage the live catalog, and inject tracks into the active song queue.
+                  </p>
+
+                  {/* Tech Specs Block for Extra Flexing */}
+                  <div className="text-[10px] text-zinc-300/90 font-mono space-y-0.5 bg-black/20 p-2 rounded-xl border border-white/5">
+                    <div>⚡ Supabase Rate Limiting</div>
+                    <div>⏱️ Scheduled Cron Jobs</div>
+                    <div>🛡️ SQL Injection</div>
+                    <div>🛡️ CSRF</div>
+                  </div>
+                  
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <div>
+                      <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
+                      <div className="text-[10px] font-medium text-white/80">
+                        <span className="text-white font-bold">• Rhandell D. Cangayo</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute top-4 right-4 h-10 w-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10">
+                  <Music size={18} className="text-emerald-300" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* --- SECTION 3: PORTFOLIO --- */}
-<section id="portfolio" className="min-h-screen w-full flex items-center justify-center p-6 py-20 md:py-32 bg-white/90 dark:bg-transparent">
-  <div className="max-w-7xl w-full space-y-16">
-    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-10">
-      <div className="space-y-2">
-        <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
-          My <br /> <span className="text-blue-600">Works.</span>
-        </h2>
-        <p className="text-muted font-medium max-w-md">
-          Focused on performance and user utility.
-        </p>
-      </div>
-    </div>
+     {/* --- FIXED SLIDING DRAWER: TELEMETRY & INTEL --- */}
+      <div 
+        className={`fixed inset-y-0 right-0 w-full sm:max-w-[450px] md:max-w-[500px] bg-background/95 backdrop-blur-2xl border-l border-border shadow-2xl z-50 transition-transform duration-500 ease-in-out flex flex-col ${
+          dashboardOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Drawer Header */}
+        <div className="p-4 sm:p-5 border-b border-border bg-zinc-50/50 dark:bg-zinc-900/20">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.45em] text-blue-600 font-bold mb-1">System Intelligence Module</p>
+              <h3 className="text-lg font-black tracking-tight uppercase">Live Environment Status</h3>
+            </div>
+            <button 
+              onClick={() => setDashboardOpen(false)}
+              className="p-2 rounded-xl border border-border hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold font-mono"
+            >
+              <X size={14} /> CLOSE
+            </button>
+          </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-      
-      {/* PROJECT 1: SHELTCARE (CAPSTONE) - FULL IMAGE DESIGN */}
-      <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
-        {/* Full Image Background */}
-        <img 
-          src="/imag/maxx.jfif" 
-          alt="SheltCare Preview"
-          className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-        />
-        
-        {/* Capstone Badge */}
-        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border z-10">
-            <span className="text-[10px] font-black uppercase tracking-tighter text-blue-600">Capstone Project • PDM • 2025 - 2026</span>
+          {/* --- FIXED CATEGORY TABS CONTAINER (NO SCROLLBAR) --- */}
+          {/* 🛠️ Ginawang grid-cols-2 para laging sakop ang espasyo at walang scrollbar kahit sa mobile */}
+          <div className="grid grid-cols-2 gap-2 border-t border-border/50 pt-4">
+            <button
+              onClick={() => setFilter('telemetry')}
+              className={`px-2 py-2 rounded-xl text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-center transition-all border ${
+                filter === 'telemetry'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-[1.01]'
+                  : 'bg-zinc-100 dark:bg-zinc-900 text-muted border-border hover:text-foreground'
+              }`}
+            >
+              Telemetry
+            </button>
+            <button
+              onClick={() => setFilter('pulse')}
+              className={`px-2 py-2 rounded-xl text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-center transition-all border ${
+                filter === 'pulse'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-[1.01]'
+                  : 'bg-zinc-100 dark:bg-zinc-900 text-muted border-border hover:text-foreground'
+              }`}
+            >
+              Project Pulse
+            </button>
+            <button
+              onClick={() => setFilter('weather')}
+              className={`px-2 py-2 rounded-xl text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-center transition-all border ${
+                filter === 'weather'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-[1.01]'
+                  : 'bg-zinc-100 dark:bg-zinc-900 text-muted border-border hover:text-foreground'
+              }`}
+            >
+              Weather
+            </button>
+            <button
+              onClick={() => setFilter('github')}
+              className={`px-2 py-2 rounded-xl text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-center transition-all border ${
+                filter === 'github'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-[1.01]'
+                  : 'bg-zinc-100 dark:bg-zinc-900 text-muted border-border hover:text-foreground'
+              }`}
+            >
+              GitHub Profile
+            </button>
+          </div>
         </div>
 
-       {/* Blurred Bottom Overlay (Text Container) */}
-<div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
-          <div className="space-y-3">
+        {/* Scrollable Widget Container */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar bg-zinc-50/20 dark:bg-zinc-950/10">
+          {/* 🛠️ Dito natin pinwersa na mawala ang malaking space sa kanan sa pamamagitan ng pag-override sa grid ng LiveDashboard */}
+          <div className="w-full [&>div]:grid-cols-1 [&>div>section]:w-full space-y-4">
             
-            {/* Title & Stacks - Minimal on Mobile */}
-            <div className="space-y-1">
-              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">SheltCare</h3>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">PHP</span>
-                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">MySQL</span>
-                <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>ESP32</span>
-                <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>IoT</span>
+            {/* Discord Embed (Telemetry Only) */}
+            {filter === 'telemetry' && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 w-full">
+                <DiscordEmbed clientId={process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID!} open={dashboardOpen} />
               </div>
+            )}
+
+            {/* Live Dashboard (Laging full width na ito ngayon sa loob ng drawer mo) */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 w-full">
+              <LiveDashboard filter={filter} />
             </div>
 
-            {/* Description - Hidden on Mobile, Shown on Expand */}
-            <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
-                {expandedCard === 'shelcare' ? 'SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.' : 'SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.'}
-            </p>
-
-            {/* Developers List */}
-            <div className="pt-2 border-t border-white/10">
-              <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
-              <div className="text-[10px] font-medium text-white/80 flex flex-wrap gap-1 hidden sm:flex">
-                <span>Justine Karl B. Cortezano,</span>
-                <span>Clarence S. Castro,</span>
-                <span>Diana Rose G. Capellan,</span>
-                <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
-              </div>
-              <div className={`${expandedCard === 'shelcare' ? 'flex' : 'hidden'} text-[10px] font-medium text-white/80 sm:hidden flex-wrap gap-1`}>
-                <span>Justine Karl B. Cortezano,</span>
-                <span>Clarence S. Castro,</span>
-                <span>Diana Rose G. Capellan,</span>
-                <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
-              </div>
-              <div className={`${expandedCard === 'shelcare' ? 'hidden' : 'flex'} text-[10px] font-medium text-white/80 sm:hidden`}>
-                <span className="font-semibold">Rhandell D.</span>
-                <span className="text-white/70"> +3 more</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setExpandedCard(expandedCard === 'shelcare' ? null : 'shelcare')}
-                className="mt-2 sm:hidden text-[9px] font-semibold uppercase tracking-[0.1em] text-blue-200"
-              >
-                {expandedCard === 'shelcare' ? '↑ Hide' : '↓ View all'}
-              </button>
-            </div>
-          </div>
-          
-          {/* External Link Hover */}
-          <a href="https://maxxfurryfriends.com/website/website_interface/MainPage.php" target="_blank" className="absolute top-4 right-4 sm:right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <ExternalLink size={20} className="text-white" />
-          </a>
-        </div>
-      </div>
-
-      {/* PROJECT 2: MUSICIANA - FULL IMAGE DESIGN */}
-      <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
-        <img 
-          src="/imag/musiciana_preview.jpg" 
-          alt="Musiciana Preview"
-          className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-        />
-        
-        {/* Status Badge */}
-        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-red-600 px-4 py-2 rounded-full border border-red-700 z-10 shadow-lg">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white">Under Development</span>
-        </div>
-
-        {/* Blurred Bottom Overlay (Text Container) */}
-<div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
-          <div className="space-y-3">
-            
-            <div className="space-y-1">
-              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">Musiciana</h3>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">Supabase</span>
-                <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300">React</span>
-                <span className={`${expandedCard === 'musiciana' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10 text-emerald-300`}>Next.js</span>
-              </div>
-            </div>
-
-            <p className={`${expandedCard === 'musiciana' ? 'block' : 'hidden sm:block'} text-white/85 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
-              Cloud-based music streaming engine with real-time database synchronization and sleek UI.
-            </p>
-
-            <div className="pt-2 border-t border-white/10">
-              <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
-              {expandedCard === 'musiciana' ? (
-                <div className="text-[10px] sm:text-[10px] font-medium text-white/80">
-                  <span className="text-white font-bold">• Rhandell D. Cangayo</span>
-                </div>
-              ) : (
-                <div className="text-[10px] font-medium text-white/80">
-                  <span className="text-white font-bold">• Rhandell D. Cangayo</span>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => setExpandedCard(expandedCard === 'musiciana' ? null : 'musiciana')}
-                className="mt-2 sm:hidden text-[9px] font-semibold uppercase tracking-[0.1em] text-blue-200"
-              >
-                {expandedCard === 'musiciana' ? '↑ Hide' : '↓ View all'}
-              </button>
-            </div>
-          </div>
-          
-          <div className="absolute top-4 right-4 sm:right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10">
-            <Music size={20} className="text-emerald-300" />
           </div>
         </div>
       </div>
-
-    </div>
-  </div>
-</section>
-      {/* Discord popup removed */}
       <Chatbot />
     </div>
   );

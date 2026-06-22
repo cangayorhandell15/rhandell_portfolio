@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, CloudSun, Cpu, Globe2, Smartphone, Laptop, Battery, Zap, Github, Users, GitBranch, MessageSquare } from 'lucide-react';
 
+interface LiveDashboardProps {
+  filter?: 'telemetry' | 'pulse' | 'weather' | 'github';
+}
+
 type ProjectStatus = {
   name: string;
   url?: string;
@@ -76,8 +80,6 @@ const formatBytes = (value: number) => {
   return `${(value / 1024 ** 3).toFixed(2)} GB`;
 };
 
-const DISCORD_HANDLE = 'rhandell5590';
-
 const formatLatency = (value?: number) => (value === undefined ? '—' : `${Math.round(value)}ms`);
 
 const formatGitHubEvent = (event: any): string => {
@@ -123,6 +125,7 @@ const formatGitHubEvent = (event: any): string => {
 };
 
 const detectDeviceType = (): DeviceType => {
+  if (typeof window === 'undefined') return 'Desktop';
   const ua = navigator.userAgent.toLowerCase();
   const isMobile = /mobile|android|iphone|ipod|blackberry|iemobile|opera mini/.test(ua);
   const isTablet = /tablet|ipad|playbook|silk|android(?!.*mobile)/.test(ua);
@@ -172,18 +175,13 @@ const renderNetworkSpeedGraph = (history: number[]) => {
 
   return (
     <svg width={width} height={height} className="w-full" viewBox={`0 0 ${width} ${height}`}>
-      {/* Grid lines */}
       <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="currentColor" strokeWidth="1" opacity="0.1" />
       <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="currentColor" strokeWidth="1" opacity="0.1" />
-
-      {/* Area under curve */}
       <path
         d={`${pathData} L ${points[points.length - 1].x} ${height - padding} L ${padding} ${height - padding} Z`}
         fill={isIncreasing ? 'rgb(34, 197, 94)' : 'rgb(249, 115, 22)'}
         opacity="0.15"
       />
-
-      {/* Line */}
       <path
         d={pathData}
         stroke={isIncreasing ? 'rgb(34, 197, 94)' : 'rgb(249, 115, 22)'}
@@ -192,8 +190,6 @@ const renderNetworkSpeedGraph = (history: number[]) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-
-      {/* Data points */}
       {points.map((p, i) => (
         <circle
           key={i}
@@ -208,8 +204,7 @@ const renderNetworkSpeedGraph = (history: number[]) => {
   );
 };
 
-export default function LiveDashboard() {
-  const [online, setOnline] = useState(true);
+export default function LiveDashboard({ filter }: LiveDashboardProps) {
   const [deviceType, setDeviceType] = useState<DeviceType>('Desktop');
   const [battery, setBattery] = useState<{ level: number; charging: boolean } | null>(null);
   const [hardware, setHardware] = useState({ cpu: 0, ram: 0, downlink: 0, rtt: 0 });
@@ -217,28 +212,17 @@ export default function LiveDashboard() {
   const [ramAllocation, setRamAllocation] = useState<{ used: number; total: number }>({ used: 0, total: 0 });
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({ cpuLoad: 0, memoryLoad: 0, networkLoad: 0, networkSpeed: 0 });
   const [networkSpeedHistory, setNetworkSpeedHistory] = useState<number[]>([]);
-  const [speedTrend, setSpeedTrend] = useState(0);
   const [githubStats, setGithubStats] = useState<GitHubStats | null>(null);
   const [loadingGithub, setLoadingGithub] = useState(true);
   const [weather, setWeather] = useState<WeatherState | null>(null);
+  
+  // Initial structure, bago mapalitan ng totoong live API status fetch results
   const [projectStatuses, setProjectStatuses] = useState<ProjectStatus[]>([
-    {
-      name: 'Portfolio',
-      status: 'checking',
-    },
-    {
-      name: 'Musiciana',
-      status: 'Under-development',
-      note: 'Under development — preview coming soon',
-    },
-    {
-      name: 'SheltCare',
-      url: 'https://maxxfurryfriends.com/website/website_interface/MainPage.php',
-      status: 'offline',
-      note: 'Domain expired — showing archived status until redeployed',
-    },
+    { name: 'Portfolio', status: 'checking' },
+    { name: 'Musiciana', status: 'checking' },
+    { name: 'SheltCare', status: 'offline', note: 'Domain expired — showing archived status until redeployed' }
   ]);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  
   const [windowWidth, setWindowWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   useEffect(() => {
@@ -363,15 +347,6 @@ export default function LiveDashboard() {
 
   useEffect(() => {
     setDeviceType(detectDeviceType());
-    setOnline(navigator.onLine);
-    const updateOnline = () => setOnline(navigator.onLine);
-    window.addEventListener('online', updateOnline);
-    window.addEventListener('offline', updateOnline);
-
-    return () => {
-      window.removeEventListener('online', updateOnline);
-      window.removeEventListener('offline', updateOnline);
-    };
   }, []);
 
   useEffect(() => {
@@ -389,23 +364,18 @@ export default function LiveDashboard() {
 
     const updateSystemMetrics = () => {
       const mem = (performance as any).memory;
+      const actualSystemRam = (navigator as any).deviceMemory || 8;
       
-      // Get actual system RAM from deviceMemory API
-      const actualSystemRam = (navigator as any).deviceMemory || 8; // Default to 8GB if not available
-      
-      // Memory load based on JS Heap usage
       let memoryLoad = mem?.usedJSHeapSize && mem?.jsHeapSizeLimit
         ? Math.min(1, mem.usedJSHeapSize / mem.jsHeapSizeLimit)
         : 0.45;
       
-      // Add natural fluctuation to memory
       memoryLoad = Math.max(0.1, Math.min(0.95, memoryLoad + (Math.sin(Date.now() / 2000) * 0.15)));
 
-      // Update RAM allocation with ACTUAL system RAM
       if (mem?.usedJSHeapSize && mem?.jsHeapSizeLimit) {
         setRamAllocation({
           used: Math.round((mem.usedJSHeapSize / (1024 ** 3)) * 100) / 100,
-          total: actualSystemRam, // Use actual system RAM, not heap limit
+          total: actualSystemRam,
         });
       } else if (deviceRam) {
         setRamAllocation({
@@ -414,32 +384,25 @@ export default function LiveDashboard() {
         });
       }
 
-      // CPU load with natural sine wave variation
       const cpuLoad = Math.min(
         0.95,
         0.25 + (deviceCpu ? Math.min(0.35, deviceCpu * 0.04) : 0.15) + Math.abs(Math.sin(Date.now() / 3500)) * 0.25,
       );
 
-      // Network speed with trending behavior
       const baseSpeed = downlink ? downlink * 8 : 45;
       const randomVariation = (Math.random() - 0.5) * 30;
       const trendComponent = Math.sin(Date.now() / 5000) * 20;
       const networkSpeed = Math.max(5, Math.min(200, baseSpeed + randomVariation + trendComponent));
 
-      // Network load with fluctuation
       let networkLoad = downlink ? Math.min(1, downlink / 80) : 0.35;
       networkLoad = Math.max(0.2, Math.min(1, networkLoad + (Math.sin(Date.now() / 2500) * 0.2)));
 
       setSystemMetrics({ cpuLoad, memoryLoad, networkLoad, networkSpeed });
 
-      // Update network speed history for trending
       setNetworkSpeedHistory((prev) => {
         const updated = [...prev, networkSpeed];
-        return updated.slice(-30); // Keep last 30 data points
+        return updated.slice(-30);
       });
-
-      // Track trend direction
-      setSpeedTrend(networkSpeed);
     };
 
     if ('getBattery' in navigator) {
@@ -473,10 +436,8 @@ export default function LiveDashboard() {
       updateSystemMetrics();
     }, 1000);
 
-    const timeInterval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => {
       clearInterval(metricsInterval);
-      clearInterval(timeInterval);
     };
   }, []);
 
@@ -494,21 +455,12 @@ export default function LiveDashboard() {
         let userData: any = null;
         if (userResponse.ok) {
           userData = await userResponse.json();
-        } else {
-          try {
-            const body = await userResponse.json();
-            console.warn('GitHub user fetch failed:', userResponse.status, body.message ?? body);
-          } catch (e) {
-            console.warn('GitHub user fetch failed with status', userResponse.status);
-          }
         }
 
         let contributionsThisYear = 0;
         if (contributionsResponse.ok) {
           const contributionsData = await contributionsResponse.json();
           contributionsThisYear = contributionsData.totalContributions || 0;
-        } else {
-          console.warn('Failed to load GitHub contribution graph:', contributionsResponse.statusText);
         }
 
         let latestActivity: string | null = null;
@@ -517,8 +469,6 @@ export default function LiveDashboard() {
           if (Array.isArray(eventsData) && eventsData.length > 0) {
             latestActivity = formatGitHubEvent(eventsData[0]);
           }
-        } else {
-          console.warn('Failed to load GitHub events:', eventsResponse.statusText);
         }
 
         setGithubStats({
@@ -544,50 +494,24 @@ export default function LiveDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // ─── REAL TOONG LIVE PULSE CHECKER EFFECT (INAYOS ANG BRACKETS LAYER) ───
   useEffect(() => {
-    const projectList = [...projectStatuses];
-
-    const checkProject = async (project: ProjectStatus): Promise<ProjectStatus> => {
-      if (!project.url) {
-        return { ...project, status: 'Under-development', latency: undefined, code: undefined };
-      }
-
-      if (project.note && project.note.toLowerCase().includes('expired')) {
-        return { ...project, status: 'offline', latency: undefined, code: undefined };
-      }
-
-      const start = performance.now();
+    const fetchRealStatus = async () => {
       try {
-        const response = await fetch(`${project.url}?t=${Date.now()}`, {
-          method: 'HEAD',
-          cache: 'no-store',
-        });
-        const latency = performance.now() - start;
-        return {
-          ...project,
-          status: response.ok ? 'online' : 'offline',
-          latency,
-          code: response.status,
-        };
-      } catch {
-        return { ...project, status: 'offline' };
+        const res = await fetch('/api/projects-health');
+        if (res.ok) {
+          const data = await res.json();
+          setProjectStatuses(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch real-time project pulse:", error);
       }
     };
 
-    const runChecks = async () => {
-      const origin = window.location.origin;
-      const updatedProjectList = projectList.map((project) =>
-        project.name === 'Portfolio' ? { ...project, url: origin } : project,
-      );
+    fetchRealStatus();
+    const timer = setInterval(fetchRealStatus, 30000);
 
-      const results = await Promise.all(updatedProjectList.map(checkProject));
-      setProjectStatuses(results);
-    };
-
-    runChecks();
-    const interval = window.setInterval(runChecks, 45000);
-    return () => window.clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -692,7 +616,6 @@ export default function LiveDashboard() {
 
   const ContributionsHeatmap = () => {
     const cols = heatmapCols.length || 53;
-    const rows = 7;
     const cellSize = windowWidth < 420 ? 8 : windowWidth < 640 ? 10 : 12;
 
     const colorFor = (value: number) => {
@@ -782,335 +705,307 @@ export default function LiveDashboard() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 min-w-0">
-      <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-sky-500/10 backdrop-blur-xl ring-1 ring-white/10">
-        <div className="flex items-center justify-between gap-3 mb-6">
+    <div className="flex flex-col w-full h-full gap-4 min-w-0"> 
+      
+      {/* 1. SYSTEM TELEMETRY SECTION */}
+      {(!filter || filter === 'telemetry') && (
+        <section className="bento-card min-w-0 h-full flex flex-col justify-between border-border p-4 sm:p-5 shadow-2xl shadow-sky-500/10 backdrop-blur-xl ring-1 ring-white/10">
           <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-blue-600/90">System Telemetry</p>
-            <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">Live Stats</h3>
-            <div className="mt-2 flex items-center gap-2">
-              {getDeviceIcon(deviceType)}
-              <span className="text-sm font-semibold text-blue-500">{deviceType}</span>
-            </div>
-          </div>
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-blue-500/10 text-blue-500">
-            <Cpu size={24} />
-          </div>
-        </div>
-
-        <div className="space-y-5 text-sm text-zinc-600 dark:text-zinc-300">
-          <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold">CPU Load</span>
-              <span className="font-mono">{Math.round(systemMetrics.cpuLoad * 100)}%</span>
-            </div>
-            <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-              <div
-                className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                style={{ width: `${Math.round(systemMetrics.cpuLoad * 100)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold">Memory Utilization</span>
-              <span className="font-mono">{Math.round(systemMetrics.memoryLoad * 100)}%</span>
-            </div>
-            <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-              <div
-                className="h-full rounded-full bg-cyan-500 transition-all duration-500"
-                style={{ width: `${Math.round(systemMetrics.memoryLoad * 100)}%` }}
-              />
-            </div>
-            {ramAllocation.total > 0 && (
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                {ramAllocation.used.toFixed(2)} GB / {ramAllocation.total.toFixed(2)} GB
-              </p>
-            )}
-          </div>
-
-          <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold">Network Quality</span>
-              <span className="font-mono">{Math.round(systemMetrics.networkLoad * 100)}%</span>
-            </div>
-            <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-              <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                style={{ width: `${Math.round(systemMetrics.networkLoad * 100)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-green-500/10 bg-green-500/5 px-4 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold">Network Speed</span>
-              <span className="font-mono text-lg font-bold text-green-600">{Math.round(systemMetrics.networkSpeed)} Mbps</span>
-            </div>
-            <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Download Speed</div>
-            {networkSpeedHistory.length > 1 && (
-              <div className="text-zinc-600 dark:text-zinc-400">
-                {renderNetworkSpeedGraph(networkSpeedHistory)}
-              </div>
-            )}
-            <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-              RTT: {hardware.rtt ? `${Math.round(hardware.rtt)}ms` : '—'} | Downlink: {hardware.downlink ? `${hardware.downlink}Mbps` : '—'}
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Threads (CPU)</p>
-              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{hardware.cpu || 'Auto'}</p>
-            </div>
-            <div className="rounded-3xl border border-slate-500/10 bg-slate-500/5 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Total RAM</p>
-              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{hardware.ram ? `${hardware.ram} GB` : memoryUsage}</p>
-            </div>
-          </div>
-
-          {battery && (deviceType === 'Mobile' || deviceType === 'Tablet') && (
-            <div className="rounded-3xl border border-yellow-500/10 bg-yellow-500/5 px-4 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  {battery.charging ? (
-                    <Zap className="h-5 w-5 text-yellow-500" />
-                  ) : (
-                    <Battery className="h-5 w-5 text-yellow-500" />
-                  )}
-                  <span className="font-semibold">Battery</span>
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <p className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-blue-600/90 font-bold">System Telemetry</p>
+                <h3 className="mt-1 text-lg sm:text-xl font-black tracking-tight uppercase">Live Stats</h3>
+                <div className="mt-1 flex items-center gap-1.5">
+                  {getDeviceIcon(deviceType)}
+                  <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">{deviceType}</span>
                 </div>
-                <span className="font-mono text-lg font-bold text-yellow-600">{Math.round(battery.level * 100)}%</span>
               </div>
-              <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    battery.level > 0.5
-                      ? 'bg-yellow-500'
-                      : battery.level > 0.2
-                      ? 'bg-orange-500'
-                      : 'bg-red-500'
-                  }`}
-                  style={{ width: `${battery.level * 100}%` }}
-                />
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-500 shrink-0">
+                <Cpu size={20} />
               </div>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                {battery.charging ? '⚡ Charging' : '🔋 On Battery'}
-              </p>
             </div>
-          )}
 
-          <div className="mt-5 rounded-3xl border border-blue-200/70 bg-blue-50/80 px-4 py-3 text-sm text-blue-700 dark:border-blue-500/20 dark:bg-blue-950/20 dark:text-blue-200">
+            <div className="space-y-3.5 text-sm text-zinc-600 dark:text-zinc-300">
+              <div className="rounded-2xl border border-slate-500/10 bg-slate-500/5 px-3.5 py-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted">CPU Load</span>
+                  <span className="font-mono text-xs font-bold">{Math.round(systemMetrics.cpuLoad * 100)}%</span>
+                </div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+                  <div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${Math.round(systemMetrics.cpuLoad * 100)}%` }} />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-500/10 bg-slate-500/5 px-3.5 py-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted">Memory Utilization</span>
+                  <span className="font-mono text-xs font-bold">{Math.round(systemMetrics.memoryLoad * 100)}%</span>
+                </div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+                  <div className="h-full rounded-full bg-cyan-500 transition-all duration-500" style={{ width: `${Math.round(systemMetrics.memoryLoad * 100)}%` }} />
+                </div>
+                {ramAllocation.total > 0 && (
+                  <p className="mt-1.5 text-[11px] font-mono font-medium text-zinc-500 dark:text-zinc-400">
+                    {ramAllocation.used.toFixed(2)} GB / {ramAllocation.total.toFixed(2)} GB
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-slate-500/10 bg-slate-500/5 px-3.5 py-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted">Network Quality</span>
+                  <span className="font-mono text-xs font-bold">{Math.round(systemMetrics.networkLoad * 100)}%</span>
+                </div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+                  <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${Math.round(systemMetrics.networkLoad * 100)}%` }} />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-green-500/10 bg-green-500/5 px-3.5 py-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-green-600/90">Network Speed</span>
+                  <span className="font-mono text-base font-black text-green-600">{Math.round(systemMetrics.networkSpeed)} Mbps</span>
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Download Speed</div>
+                {networkSpeedHistory.length > 1 && (
+                  <div className="text-zinc-600 dark:text-zinc-400">{renderNetworkSpeedGraph(networkSpeedHistory)}</div>
+                )}
+                <p className="mt-2 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 border-t border-green-500/10 pt-1.5">
+                  RTT: {hardware.rtt ? `${Math.round(hardware.rtt)}ms` : '—'} | Downlink: {hardware.downlink ? `${hardware.downlink}Mbps` : '—'}
+                </p>
+              </div>
+
+              <div className="grid gap-3 grid-cols-2">
+                <div className="rounded-2xl border border-blue-500/10 bg-blue-500/5 px-3 py-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Threads (CPU)</p>
+                  <p className="mt-1 text-base font-black text-slate-900 dark:text-white font-mono">{hardware.cpu || 'Auto'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-500/10 bg-slate-500/5 px-3 py-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total RAM</p>
+                  <p className="mt-1 text-base font-black text-slate-900 dark:text-white font-mono">{hardware.ram ? `${hardware.ram} GB` : memoryUsage}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-blue-200/50 bg-blue-50/50 px-3.5 py-2.5 text-xs text-blue-700 dark:border-blue-500/10 dark:bg-blue-950/20 dark:text-blue-200 font-medium">
             All stats reflect the active {deviceType.toLowerCase()} currently viewing this page.
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-fuchsia-500/10 backdrop-blur-xl ring-1 ring-white/10">
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-violet-500/90">Project Network</p>
-            <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">Live Project Pulse</h3>
-          </div>
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-violet-500/10 text-violet-500">
-            <Globe2 size={24} />
-          </div>
-        </div>
-
-        <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
-          {projectStatuses.map((project) => {
-            const pulse = getProjectPulse(project.status);
-            return (
-              <div key={project.name} className="rounded-3xl border border-zinc-200/40 bg-transparent px-4 py-3 dark:border-zinc-800/60 dark:bg-transparent">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-zinc-900 dark:text-white">{project.name}</p>
-                    {project.url ? (
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="project-url inline-block px-2 py-0.5 rounded-md bg-white/90 dark:bg-transparent text-[11px] !text-slate-900 hover:underline dark:!text-zinc-300 break-words max-w-full"
-                      >
-                        {project.url}
-                      </a>
-                    ) : (
-                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 break-words max-w-full">Not hosted yet</p>
-                    )}
-                    {project.note && (
-                      <p className="mt-1 text-[10px] uppercase tracking-[0.35em] text-amber-500 dark:text-amber-400 break-words max-w-full">{project.note}</p>
-                    )}
-                  </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${
-                    project.status === 'online'
-                      ? 'bg-emerald-500/10 text-emerald-500'
-                      : project.status === 'Under-development'
-                      ? 'bg-amber-500/10 text-amber-500'
-                      : 'bg-rose-500/10 text-rose-500'
-                  }`}>
-                    {pulse.label}
-                  </span>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-[11px] text-slate-700 dark:text-zinc-400 mb-2 gap-2">
-                    <span>Live pulse</span>
-                    <span>{Math.round(pulse.width)}%</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                    <div
-                      className={`h-full rounded-full ${pulse.color} transition-all duration-500`}
-                      style={{ width: `${pulse.width}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-[12px] text-slate-700 dark:text-zinc-400">
-                  <span>{project.status === 'Under-development' ? 'Under development' : formatLatency(project.latency)}</span>
-                  <span>{project.code ? `HTTP ${project.code}` : ''}</span>
-                </div>
-              </div>
-            );
-          })}
-
-          <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Live uptime</p>
-                <p className="mt-2 text-lg font-bold">{activeProjects}/{totalProjects} projects online</p>
-              </div>
-              <ArrowUpRight size={20} className="text-blue-600" />
+      {/* 2. LIVE PROJECT PULSE SECTION */}
+      {(!filter || filter === 'pulse') && (
+        <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-fuchsia-500/10 backdrop-blur-xl ring-1 ring-white/10">
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-violet-500/90">Project Network</p>
+              <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">Live Project Pulse</h3>
+            </div>
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-violet-500/10 text-violet-500">
+              <Globe2 size={24} />
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl ring-1 ring-white/10">
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-cyan-500/90">Live Weather</p>
-            <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">Current Conditions</h3>
-          </div>
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-cyan-500/10 text-cyan-500">
-            <CloudSun size={24} />
-          </div>
-        </div>
+          <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
+            {projectStatuses.map((project) => {
+              const pulse = getProjectPulse(project.status);
+              return (
+                <div key={project.name} className="rounded-3xl border border-zinc-200/40 bg-transparent px-4 py-3 dark:border-zinc-800/60 dark:bg-transparent">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-zinc-900 dark:text-white">{project.name}</p>
+                      {project.url ? (
+                        <a
+                          href={project.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="project-url inline-block px-2 py-0.5 rounded-md bg-white/90 dark:bg-transparent text-[11px] !text-slate-900 hover:underline dark:!text-zinc-300 break-words max-w-full"
+                        >
+                          {project.url}
+                        </a>
+                      ) : (
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 break-words max-w-full">Not hosted yet</p>
+                      )}
+                      {project.note && (
+                        <p className="mt-1 text-[10px] uppercase tracking-[0.35em] text-amber-500 dark:text-amber-400 break-words max-w-full">{project.note}</p>
+                      )}
+                    </div>
+                    <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${
+                      project.status === 'online'
+                        ? 'bg-emerald-500/10 text-emerald-500'
+                        : project.status === 'Under-development'
+                        ? 'bg-amber-500/10 text-amber-500'
+                        : 'bg-rose-500/10 text-rose-500'
+                    }`}>
+                      {pulse.label}
+                    </span>
+                  </div>
 
-        <div className="grid gap-6">
-          <div className="rounded-[2.5rem] border border-slate-200/40 bg-transparent p-6 dark:border-zinc-800/60 dark:bg-transparent">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">Current conditions</p>
-                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{weather?.city || 'Location unavailable'}</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">{weather ? `${Math.round(weather.temperature)}°C` : 'Loading...'}</p>
-              </div>
-              <div className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-white/80 text-slate-900 shadow-lg shadow-slate-200/60 dark:bg-zinc-950/90 dark:text-white dark:shadow-black/20">
-                {weatherIcon}
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-[11px] text-slate-700 dark:text-zinc-400 mb-2 gap-2">
+                      <span>Live pulse</span>
+                      <span>{Math.round(pulse.width)}%</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
+                      <div
+                        className={`h-full rounded-full ${pulse.color} transition-all duration-500`}
+                        style={{ width: `${pulse.width}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-[12px] text-slate-700 dark:text-zinc-400">
+                    <span>{project.status === 'Under-development' ? 'Under development' : formatLatency(project.latency)}</span>
+                    <span>{project.code ? `HTTP ${project.code}` : ''}</span>
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="rounded-3xl border border-blue-500/10 bg-blue-500/5 px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-blue-600">Live uptime</p>
+                  <p className="mt-2 text-lg font-bold">{activeProjects}/{totalProjects} projects online</p>
+                </div>
+                <ArrowUpRight size={20} className="text-blue-600" />
               </div>
             </div>
-            <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{weather?.description || 'Getting local weather data…'}</p>
+          </div>
+        </section>
+      )}
+
+      {/* 3. WEATHER CONDITIONS SECTION */}
+      {(!filter || filter === 'weather') && (
+        <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl ring-1 ring-white/10">
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-cyan-500/90">Live Weather</p>
+              <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">Current Conditions</h3>
+            </div>
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-cyan-500/10 text-cyan-500">
+              <CloudSun size={24} />
+            </div>
+          </div>
+
+          <div className="grid gap-6">
+            <div className="rounded-[2.5rem] border border-slate-200/40 bg-transparent p-6 dark:border-zinc-800/60 dark:bg-transparent">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">Current conditions</p>
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{weather?.city || 'Location unavailable'}</p>
+                  <p className="mt-3 text-5xl font-black tracking-tight">{weather ? `${Math.round(weather.temperature)}°C` : 'Loading...'}</p>
+                </div>
+                <div className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-white/80 text-slate-900 shadow-lg shadow-slate-200/60 dark:bg-zinc-950/90 dark:text-white dark:shadow-black/20">
+                  {weatherIcon}
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{weather?.description || 'Getting local weather data…'}</p>
               <div className="mt-5 rounded-3xl border border-cyan-200/70 bg-cyan-50/70 p-4 text-sm text-cyan-950 dark:border-cyan-500/20 dark:bg-cyan-950/30 dark:text-cyan-200">
                 {weatherTip}
               </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-orange-500/10 backdrop-blur-xl ring-1 ring-white/10">
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-orange-600/90">Developer Stats</p>
-            <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">GitHub Profile</h3>
+      {/* 4. GITHUB PROFILE SECTION */}
+      {(!filter || filter === 'github') && (
+        <section className="bento-card min-w-0 border-border p-4 sm:p-6 shadow-2xl shadow-orange-500/10 backdrop-blur-xl ring-1 ring-white/10">
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-orange-600/90">Developer Stats</p>
+              <h3 className="mt-3 text-xl sm:text-2xl font-black tracking-tight">GitHub Profile</h3>
+            </div>
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-orange-500/10 text-orange-500">
+              <Github size={24} />
+            </div>
           </div>
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-orange-500/10 text-orange-500">
-            <Github size={24} />
-          </div>
-        </div>
 
-        {loadingGithub ? (
-          <div className="text-center py-6">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading GitHub data...</p>
-          </div>
-        ) : githubStats ? (
-          <div className="space-y-5">
-            <div className="flex flex-col gap-3 rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-4">
-              <div className="flex items-center gap-4">
-                {githubStats.avatarUrl && (
-                  <img 
-                    src={githubStats.avatarUrl} 
-                    alt={githubStats.username}
-                    className="h-12 w-12 rounded-full"
-                  />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-900 dark:text-white truncate">{githubStats.username}</p>
-                  <a 
-                    href={githubStats.profileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-orange-600 hover:underline"
-                  >
-                    github.com/{githubStats.username}
-                  </a>
-                  {githubStats.latestActivity && (
-                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                      {githubStats.latestActivity}
-                    </p>
+          {loadingGithub ? (
+            <div className="text-center py-6">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading GitHub data...</p>
+            </div>
+          ) : githubStats ? (
+            <div className="space-y-5">
+              <div className="flex flex-col gap-3 rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-4">
+                <div className="flex items-center gap-4">
+                  {githubStats.avatarUrl && (
+                    <img 
+                      src={githubStats.avatarUrl} 
+                      alt={githubStats.username}
+                      className="h-12 w-12 rounded-full"
+                    />
                   )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-900 dark:text-white truncate">{githubStats.username}</p>
+                    <a 
+                      href={githubStats.profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-orange-600 hover:underline"
+                    >
+                      github.com/{githubStats.username}
+                    </a>
+                    {githubStats.latestActivity && (
+                      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                        {githubStats.latestActivity}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-           
-            </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Public Repos</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{githubStats.publicRepos}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Public Repos</p>
+                  <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{githubStats.publicRepos}</p>
+                </div>
+                <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Followers</p>
+                  <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Users size={16} />
+                    {githubStats.followers}
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Following</p>
+                  <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{githubStats.following}</p>
+                </div>
+                <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Total contributions</p>
+                  <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <GitBranch size={16} />
+                    {githubStats.totalContributions}
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Contributions this year</p>
+                  <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <GitBranch size={16} />
+                    {githubStats.contributionsThisYear}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Followers</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Users size={16} />
-                  {githubStats.followers}
-                </p>
-              </div>
-              <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Following</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">{githubStats.following}</p>
-              </div>
-              <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Total contributions</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <GitBranch size={16} />
-                  {githubStats.totalContributions}
-                </p>
-              </div>
-              <div className="rounded-3xl border border-orange-500/10 bg-orange-500/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-orange-600">Contributions this year</p>
-                <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <GitBranch size={16} />
-                  {githubStats.contributionsThisYear}
-                </p>
-              </div>
-            </div>
-            <ContributionsHeatmap />
+              <ContributionsHeatmap />
 
-            <a
-              href={githubStats.profileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full rounded-3xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 text-center text-sm font-semibold text-orange-600 hover:bg-orange-500/20 transition-all"
-            >
-              Visit GitHub Profile →
-            </a>
-          </div>
-        ) : (
-          <div className="text-center py-6">
-            <p className="text-sm text-red-500 dark:text-red-400">Failed to load GitHub data</p>
-          </div>
-        )}
-      </section>
+              <a
+                href={githubStats.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full rounded-3xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 text-center text-sm font-semibold text-orange-600 hover:bg-orange-500/20 transition-all"
+              >
+                Visit GitHub Profile →
+              </a>
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-sm text-red-500 dark:text-red-400">Failed to load GitHub data</p>
+            </div>
+          )}
+        </section>
+      )}
+
     </div>
   );
 }
