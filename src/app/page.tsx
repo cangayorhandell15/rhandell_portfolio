@@ -9,6 +9,8 @@ import {
 import LiveDashboard from '@/components/LiveDashboard';
 import DiscordEmbed from '@/components/DiscordEmbed';
 import LoadingScreen from '@/components/loading';
+import Skills from '@/components/Skills'; // Bagong file na ginawa mo sa itaas
+
 
 const Chatbot = dynamic(() => import('../components/Chatbot'), { ssr: false });
 
@@ -69,7 +71,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground selection:bg-blue-500/30 scroll-smooth overflow-x-hidden relative">
       {loading && <LoadingScreen />}
 
-      {/* --- NAVIGATION --- */}
+     {/* --- NAVIGATION --- */}
       <nav className="fixed top-0 w-full z-40 site-nav bg-background/50 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
           <button
@@ -89,7 +91,11 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-10">
             <div className="flex gap-10 text-[11px] font-black tracking-[0.25em] text-muted">
               <a href="#home" className="hover:text-blue-600 transition-colors uppercase">Home</a>
-              <a href="#portfolio" className="hover:text-blue-600 transition-colors uppercase">Portfolio</a>
+               {/* Idinagdag na Skills link para sa Desktop */}
+              <a href="#skills" className="hover:text-blue-600 transition-colors uppercase">Skills</a>
+              <a href="#portfolio" className="hover:text-blue-600 transition-colors uppercase">Projects</a>
+             
+              
               {/* Desktop Dashboard Nav Trigger */}
               <button 
                 onClick={() => setDashboardOpen(true)} 
@@ -135,13 +141,23 @@ export default function Home() {
               >
                 Home
               </a>
+
+                 <a 
+                href="#skills" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-bold tracking-[0.2em] text-muted hover:text-blue-600 transition-colors uppercase"
+              >
+                Skills
+              </a>
               <a 
                 href="#portfolio" 
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-sm font-bold tracking-[0.2em] text-muted hover:text-blue-600 transition-colors uppercase"
               >
-                Portfolio
+                Projects
               </a>
+              {/* Idinagdag na Skills link para sa Mobile */}
+           
               <button 
                 onClick={() => { setMobileMenuOpen(false); setDashboardOpen(true); }}
                 className="text-left text-sm font-bold tracking-[0.2em] text-muted hover:text-blue-600 transition-colors uppercase flex items-center gap-2"
@@ -187,13 +203,7 @@ export default function Home() {
                   <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-start">
                     <a href="https://github.com/cangayorhandell15" target="_blank" rel="noreferrer" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Github size={20} /></a>
                     <a href="mailto:cangayorhandell15@gmail.com" className="p-4 border border-border rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"><Mail size={20} /></a>
-                    {/* Inline action button to bring up the stats directly */}
-                    <button 
-                      onClick={() => setDashboardOpen(true)}
-                      className="p-4 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded-2xl bg-blue-500/5 hover:bg-blue-500/10 transition-colors shadow-sm flex items-center gap-2 font-mono text-xs font-bold"
-                    >
-                      <Terminal size={18} /> LIVE_TELEMETRY.EXE
-                    </button>
+                  
                   </div>
                 </div>
               </>
@@ -219,156 +229,199 @@ export default function Home() {
         </div>
       </section>
 
+{/* --- SECTION 2: SKILLS --- */}
+      <Skills />
+
       {/* --- SECTION 3: PORTFOLIO --- */}
-      <section id="portfolio" className="min-h-screen w-full flex items-center justify-center p-6 py-20 md:py-32 bg-white/90 dark:bg-transparent">
-        <div className="max-w-7xl w-full space-y-16">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-10">
-            <div className="space-y-2">
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
-                My <br /> <span className="text-blue-600">Works.</span>
-              </h2>
-              <p className="text-muted font-medium max-w-md">
-                Focused on performance and user utility.
-              </p>
-            </div>
-          </div>
+<section id="portfolio" className="min-h-screen w-full flex items-center justify-center p-6 py-20 md:py-32 bg-white/90 dark:bg-transparent">
+  <div className="max-w-7xl w-full space-y-16">
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-10">
+      <div className="space-y-2">
+        <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
+          Featured <br /> <span className="text-blue-600">Projects</span>
+        </h2>
+        <p className="text-muted font-medium max-w-md">
+          Focused on performance and user utility.
+        </p>
+      </div>
+    </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* PROJECT 1: SHELTCARE (CAPSTONE) */}
-            <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
-              <img 
-                src="/imag/maxx.jfif" 
-                alt="SheltCare Preview"
-                className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border z-10">
-                  <span className="text-[10px] font-black uppercase tracking-tighter text-blue-600">Capstone Project • PDM • 2025 - 2026</span>
-              </div>
-              <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent backdrop-blur-md p-4 sm:p-8 flex flex-col justify-end text-white">
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">SheltCare</h3>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">PHP</span>
-                      <span className="px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10">MySQL</span>
-                      <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>ESP32</span>
-                      <span className={`${expandedCard === 'shelcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-2 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-lg border border-white/10`}>IoT</span>
-                    </div>
-                  </div>
-                  <p className={`${expandedCard === 'shelcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs sm:text-sm leading-relaxed max-w-full md:max-w-lg drop-shadow-md`}>
-                      SheltCare is a web-based shelter management system that streamlines core operations, including donation, sponsorship, pet adoption, and visitation. The platform is integrated with an IoT-driven environmental monitoring system. Utilizing specialized sensors, the device detects temperature and humidity levels, automatically triggering a connected humidifier and a buzzer alarm once specific environmental thresholds are breached to ensure optimal animal welfare.
-                  </p>
-                  <div className="pt-2 border-t border-white/10">
-                    <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
-                    <div className="text-[10px] font-medium text-white/80 flex flex-wrap gap-1 hidden sm:flex">
-                      <span>Justine Karl B. Cortezano,</span>
-                      <span>Clarence S. Castro,</span>
-                      <span>Diana Rose G. Capellan,</span>
-                      <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
-                    </div>
-                    <div className={`${expandedCard === 'shelcare' ? 'flex' : 'hidden'} text-[10px] font-medium text-white/80 sm:hidden flex-wrap gap-1`}>
-                      <span>Justine Karl B. Cortezano,</span>
-                      <span>Clarence S. Castro,</span>
-                      <span>Diana Rose G. Capellan,</span>
-                      <span className="text-blue-400 font-bold">Rhandell D. Cangayo</span>
-                    </div>
-                    <div className={`${expandedCard === 'shelcare' ? 'hidden' : 'flex'} text-[10px] font-medium text-white/80 sm:hidden`}>
-                      <span className="font-semibold">Rhandell D.</span>
-                      <span className="text-white/70"> +3 more</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setExpandedCard(expandedCard === 'shelcare' ? null : 'shelcare')}
-                      className="mt-2 sm:hidden text-[9px] font-semibold uppercase tracking-[0.1em] text-blue-200"
-                    >
-                      {expandedCard === 'shelcare' ? '↑ Hide' : '↓ View all'}
-                    </button>
-                  </div>
-                </div>
-                <a href="https://maxxfurryfriends.com/website/website_interface/MainPage.php" target="_blank" rel="noreferrer" className="absolute top-4 right-4 sm:right-8 h-12 w-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ExternalLink size={20} className="text-white" />
-                </a>
-              </div>
-            </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      
+      {/* PROJECT 1: SHELTCARE (CAPSTONE) */}
+      <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
+        <img 
+          src="/imag/maxx.jfif" 
+          alt="SheltCare Preview"
+          className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+        />
+        
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-col gap-1.5 z-10">
+          <span className="bg-blue-600/90 px-3.5 py-1.5 rounded-full border border-blue-400/20 shadow-lg text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-1 backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            <span>Capstone • 2025 - 2026</span>
+          </span>
+        </div>
 
-         {/* PROJECT 2: MUSICIANA */}
-            <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
-              <img 
-                src="/imag/MUSICIANA.png" 
-                alt="Musiciana Preview"
-                className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-              />
+        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/85 via-black/50 to-transparent backdrop-blur-md p-4 sm:p-6 flex flex-col justify-end text-white">
+          <div className="space-y-2.5">
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">SheltCare</h3>
               
-              {/* DYNAMIC DEPLOYMENT BADGE */}
-              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-col gap-1.5 z-10">
-                <a 
-                  href="https://rhandell-musiciana-tjxh.vercel.app" 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="bg-emerald-500/90 dark:bg-emerald-600/90 hover:bg-emerald-600 px-3.5 py-1.5 rounded-full border border-emerald-400/20 shadow-lg text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-1 backdrop-blur-md transition-all"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                  <span>Live Production</span>
-                </a>
+              <a 
+                href="https://maxxfurryfriends.com/website/website_interface/MainPage.php"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-blue-300/90 font-mono hover:underline block truncate max-w-[220px] sm:max-w-xs mb-1"
+              >
+                maxxfurryfriends.com
+              </a>
+
+              {/* Tech Stack Badges */}
+              <div className="flex flex-wrap gap-1 pt-1">
+                <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-blue-300">PHP</span>
+                <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-blue-300">MySQL</span>
+                <span className={`${expandedCard === 'sheltcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-cyan-300`}>ESP32</span>
+                <span className={`${expandedCard === 'sheltcare' ? 'inline-flex' : 'hidden sm:inline-flex'} px-1.5 py-0.5 bg-orange-500/20 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-orange-500/20 text-orange-300`}>IoT</span>
               </div>
+            </div>
+            
+            {/* Description */}
+            <p className={`${expandedCard === 'sheltcare' ? 'block' : 'hidden sm:block'} text-white/90 text-xs leading-relaxed max-w-full drop-shadow-md`}>
+              Web-based shelter management system that streamlines core operations like donation, adoption, and visitation. Integrated with an IoT-driven environmental monitoring system.
+            </p>
 
-              <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/85 via-black/50 to-transparent backdrop-blur-md p-4 sm:p-6 flex flex-col justify-end text-white">
-                <div className="space-y-2.5">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">Musiciana</h3>
-                    </div>
-                    
-                    {/* Project URL display */}
-                    <a 
-                      href="https://rhandell-musiciana-tjxh.vercel.app"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[10px] text-emerald-300/90 font-mono hover:underline block truncate max-w-[220px] sm:max-w-xs mb-1"
-                    >
-                      rhandell-musiciana-tjxh.vercel.app
-                    </a>
-
-                    {/* Updated Tech Stack Badges */}
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-emerald-300">Next.js</span>
-                      <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-emerald-300">React</span>
-                      <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-cyan-300">Supabase DB</span>
-                      <span className="px-1.5 py-0.5 bg-red-500/20 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-red-500/20 text-red-300">Attack Protection</span>
-                    </div>
-                  </div>
-                  
-                  {/* 🛠️ NEW DETAILED DESCRIPTION */}
-                  <p className="text-white/90 text-xs sm:text-xs leading-relaxed max-w-full drop-shadow-md">
-                    Web-based karaoke engine featuring dynamic party rooms. Anyone can scan the QR code to join the session, manage the live catalog, and inject tracks into the active song queue.
-                  </p>
-
-                  {/* Tech Specs Block for Extra Flexing */}
-                  <div className="text-[10px] text-zinc-300/90 font-mono space-y-0.5 bg-black/20 p-2 rounded-xl border border-white/5">
-                    <div>⚡ Supabase Rate Limiting</div>
-                    <div>⏱️ Scheduled Cron Jobs</div>
-                    <div>🛡️ SQL Injection</div>
-                    <div>🛡️ CSRF</div>
-                  </div>
-                  
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                    <div>
-                      <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
-                      <div className="text-[10px] font-medium text-white/80">
-                        <span className="text-white font-bold">• Rhandell D. Cangayo</span>
-                      </div>
-                    </div>
-                  </div>
+            {/* Tech Specs Block */}
+            <div className={`${expandedCard === 'sheltcare' ? 'block' : 'hidden sm:block'} text-[10px] text-zinc-300/90 font-mono space-y-0.5 bg-black/20 p-2 rounded-xl border border-white/5`}>
+              <div>⚡ Shelter Management and IoT Environmental Monitoring</div>
+              <div>⏱️ Automated Humidifier Control</div>
+              <div>🛡️ Real-time Environmental Alerts</div>
+            </div>
+            
+            {/* Developers Section */}
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+              <div>
+                <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Devs:</p>
+                
+                {/* Desktop View */}
+                <div className="text-[10px] font-medium text-white/80 hidden sm:flex flex-wrap gap-1">
+                  <span>J.K. Cortezano,</span>
+                  <span>C. Castro,</span>
+                  <span>D.R. Capellan,</span>
+                  <span className="text-blue-400 font-bold">R.D. Cangayo</span>
                 </div>
                 
-                <div className="absolute top-4 right-4 h-10 w-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10">
-                  <Music size={18} className="text-emerald-300" />
+                {/* Mobile Expanded View */}
+                <div className={`${expandedCard === 'sheltcare' ? 'flex' : 'hidden'} text-[10px] font-medium text-white/80 sm:hidden flex-wrap gap-1`}>
+                  <span>J.K. Cortezano, Castro, Capellan,</span>
+                  <span className="text-blue-400 font-bold">R.D. Cangayo</span>
                 </div>
+
+                {/* Mobile Collapsed View */}
+                <div className={`${expandedCard === 'sheltcare' ? 'hidden' : 'flex'} text-[10px] font-medium text-white/80 sm:hidden`}>
+                  <span className="text-blue-400 font-bold">Rhandell D.</span>
+                  <span className="text-white/60"> +3 more</span>
+                </div>
+
+                {/* Dynamic Button */}
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(expandedCard === 'sheltcare' ? null : 'sheltcare')}
+                  className="mt-2 sm:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-blue-300 block"
+                >
+                  {expandedCard === 'sheltcare' ? '↑ Hide info' : '↓ View info'}
+                </button>
               </div>
             </div>
           </div>
+          
+          <a href="https://maxxfurryfriends.com/website/website_interface/MainPage.php" target="_blank" rel="noreferrer" className="absolute top-4 right-4 h-10 w-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <ExternalLink size={18} className="text-blue-300" />
+          </a>
         </div>
-      </section>
+      </div>
+
+      {/* PROJECT 2: MUSICIANA */}
+      <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
+        <img 
+          src="/imag/MUSICIANA.png" 
+          alt="Musiciana Preview"
+          className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+        />
+        
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-col gap-1.5 z-10">
+          <span className="bg-emerald-500/90 dark:bg-emerald-600/90 px-3.5 py-1.5 rounded-full border border-emerald-400/20 shadow-lg text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-1 backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            <span>Live Production</span>
+          </span>
+        </div>
+
+        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/85 via-black/50 to-transparent backdrop-blur-md p-4 sm:p-6 flex flex-col justify-end text-white">
+          <div className="space-y-2.5">
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tighter leading-none drop-shadow-lg">Musiciana</h3>
+              
+              <a 
+                href="https://rhandell-musiciana-tjxh.vercel.app"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-emerald-300/90 font-mono hover:underline block truncate max-w-[220px] sm:max-w-xs mb-1"
+              >
+                rhandell-musiciana-tjxh.vercel.app
+              </a>
+
+              {/* Tech Stack Badges */}
+              <div className="flex flex-wrap gap-1 pt-1">
+                <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-emerald-300">Next.js</span>
+                <span className="px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-emerald-300">React</span>
+                <span className={`${expandedCard === 'musiciana' ? 'inline-flex' : 'hidden sm:inline-flex'} px-1.5 py-0.5 bg-white/10 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-white/5 text-cyan-300`}>Supabase</span>
+                <span className={`${expandedCard === 'musiciana' ? 'inline-flex' : 'hidden sm:inline-flex'} px-1.5 py-0.5 bg-red-500/20 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wider backdrop-blur-lg border border-red-500/20 text-red-300`}>Security</span>
+              </div>
+            </div>
+            
+            {/* Description */}
+            <p className={`${expandedCard === 'musiciana' ? 'block' : 'hidden sm:block'} text-white/90 text-xs leading-relaxed max-w-full drop-shadow-md`}>
+              Web-based karaoke engine featuring dynamic party rooms. Anyone can scan the QR code to join the session, manage catalogs, and inject tracks.
+            </p>
+
+            {/* Tech Specs Block */}
+            <div className={`${expandedCard === 'musiciana' ? 'block' : 'hidden sm:block'} text-[10px] text-zinc-300/90 font-mono space-y-0.5 bg-black/20 p-2 rounded-xl border border-white/5`}>
+              <div>⚡ Supabase Rate Limiting</div>
+              <div>⏱️ Scheduled Cron Jobs</div>
+              <div>🛡️ SQL Injection & CSRF Protection</div>
+            </div>
+            
+            {/* Developers Section */}
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+              <div>
+                <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">Dev:</p>
+                
+                {/* Desktop and Mobile Expanded View */}
+                <div className="text-[10px] font-medium text-white/80">
+                  <span className="text-white font-bold">• Rhandell D. Cangayo</span>
+                </div>
+
+                {/* Dynamic Button */}
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(expandedCard === 'musiciana' ? null : 'musiciana')}
+                  className="mt-2 sm:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-emerald-300 block"
+                >
+                  {expandedCard === 'musiciana' ? '↑ Hide info' : '↓ View info'}
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <a href="https://rhandell-musiciana-tjxh.vercel.app" target="_blank" rel="noreferrer" className="absolute top-4 right-4 h-10 w-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <ExternalLink size={18} className="text-emerald-300" />
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
      {/* --- FIXED SLIDING DRAWER: TELEMETRY & INTEL --- */}
       <div 
