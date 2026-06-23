@@ -344,7 +344,7 @@ export default function Home() {
       {/* PROJECT 2: MUSICIANA */}
       <div className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-border shadow-md hover:shadow-2xl transition-all duration-500">
         <img 
-          src="/imag/MUSICIANA.png" 
+          src="/imag/music.png" 
           alt="Musiciana Preview"
           className="absolute inset-0 object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
         />
